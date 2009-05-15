@@ -1,0 +1,14 @@
+= render_region :form_top
+- render_region :form do |form|
+  - form.edit_title do
+    %p.title
+      %label{ :for => "asset_title" } Title
+      = f.text_field :title, :class => 'textbox', :maxlength => 100 
+  - form.edit_metadata do
+    %p.caption
+      %label{ :for => "asset_caption" } Caption
+      = f.text_area :caption, :class => 'textbox'
+    %p.copyright
+      %label{ :for => "asset_copyright" } Copyright
+      = f.text_field :copyright, :class => 'textbox'
+
