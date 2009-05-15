@@ -83,19 +83,16 @@ Uploader.prototype = {
     var percent = Math.ceil((bytesLoaded / bytesTotal) * 100);
     var progress = new FileProgress(file, this.queue_name);
     progress.setProgress(percent);
-    progress.setStatus("Uploading...");
+    progress.setStatus(percent == 100 ? "Processing..." : "Uploading...");
   },
   uploadSuccess : function (file) {
     var progress = new FileProgress(file, this.queue_name);
     progress.setComplete();
-    progress.setStatus("Processing.");
+    progress.setStatus("Complete.");
     progress.toggleCancel(false);
   },
   uploadComplete : function (file, response) {
-    var progress = new FileProgress(file, this.queue_name);
-    progress.setComplete();
-    progress.setStatus("Complete.");
-    progress.toggleCancel(false);
+    // remote call for _describe partial
   },
   queueError : function (file, errorCode, message) {
     if (errorCode === SWFUpload.QUEUE_ERROR.QUEUE_LIMIT_EXCEEDED) {
