@@ -8,13 +8,21 @@ module AssetsControllerExtension
   end
   
   def describe
-    @asset = params[:id] ? Asset.find(params[:id]) : Asset.find_by_asset_file_name(params[:filename], :order => 'created_at desc')
+    if params[:filename]                                                                  # return value from the upload is to the swf file, not to javascript, so we generally don't have asset id
+      file_name = params[:filename].strip.gsub(/[^\w\d\.\-]+/, '_')                       # (copied from paperclip to match filename processing on upload)
+      @asset = Asset.find_by_asset_file_name(file_name, :order => 'created_at desc')      # but we do have the filename, so we do the best we can with that.
+    else
+      @asset = Asset.find(params[:id])
+    end
     if request.put?
       @asset.update_attributes!(params[:asset])
       render :partial => 'description', :layout => false
     else
       render :partial => 'describe', :layout => false
     end
+  rescue => e
+    @error = e
+    render :partial => 'upload_error', :layout => false
   end
   
 end
