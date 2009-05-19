@@ -14,7 +14,7 @@ It works. It's new but quite tidy. It should handle errors reasonably well but o
 
 The usual:
 
-	git submodule add git://github.com/spanner/radiant-paperclipped_uploader-extension.git vendor/extensions/forum
+	git submodule add git://github.com/spanner/radiant-paperclipped_uploader-extension.git vendor/extensions/paperclipped_uploader
 	rake radiant:extensions:paperclipped_uploader:update
 
 The update task brings in quite a lot of clutter: javascript, flash, a bit of css, a link image and some more spinners. You do need it all.
