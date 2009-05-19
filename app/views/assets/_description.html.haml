@@ -1,5 +1,8 @@
 %p.file_caption
+  = image_tag @asset.thumbnail(:icon)
   = @asset.caption
-  %br
-  %span.copyright
-    = @asset.copyright
+  - if Asset.column_names.include?('copyright')
+    %br
+    %span.copyright
+      copyright:
+      = @asset.copyright

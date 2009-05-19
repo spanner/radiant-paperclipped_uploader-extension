@@ -12,16 +12,16 @@
 
 .progressWrapper {
 	width: 100%;
-	margin: 10px 0;
+	margin: 2px 0;
 	overflow: hidden;
 }
 
 .progressContainer {
   position: relative;
 	padding: 0;
-	border: 1px solid #CDC295;
+/*  border: 1px solid #CDC295;*/
 	background-color: white;
-	height: 44px;
+	height: 46px;
 	overflow: hidden;
 }
 /* Message */
@@ -40,11 +40,10 @@
 
 .progressName {
   position: absolute;
-  top: .2em;
-  left: .2em;
+  top: 6px;
+  left: 6px;
 	font-family: "Lucida Grande","Bitstream Vera Sans",Helvetica,Verdana,Arial,sans-serif;
-	font-weight: bold;
-	font-size: 1.2em;
+	font-size: 0.9em;
 	text-align: left;
 	white-space: nowrap;
 	overflow: hidden;
@@ -63,7 +62,8 @@
 
 .progressBarStatus {
 	font-family: "Lucida Grande","Bitstream Vera Sans",Helvetica,Verdana,Arial,sans-serif;
-	font-size: 75%;
+/*  font-size: 0.7em;*/
+  color: #988A50;
 	text-align: left;
 	white-space: nowrap;
 }
@@ -86,10 +86,11 @@ a.progressCancel:hover {
 .progressWrapper .fileform {
   z-index: 1010;
 	position: absolute;
-	right: 0;
-  height: 44px;
+	left: 120px;
+  height: 46px;
   background-color: #EAE3C5;
   overflow: hidden;
+  min-width: 400px;
 }
 
 .progressWrapper form label {
@@ -109,25 +110,25 @@ a.progressCancel:hover {
 }
 
 .progressWrapper td {
-  padding: 1px 10px;
+  padding: 2px 10px;
   overflow: hidden;
 }
 
 .progressWrapper p {
   margin: 0;
+	padding: 6px;
 	font-family: "Lucida Grande","Bitstream Vera Sans",Helvetica,Verdana,Arial,sans-serif;
-	font-weight: bold;
-	font-size: 1.2em;
+  width: 100%;
 }
 
-.progressWrapper p.file_caption {
-  float: left;
-  margin-left: 120px;
-}
-
-.progressWrapper span.copyright{
+.progressWrapper p span.copyright{
 	color: #988A50;
   font-size: 80%;
+}
+
+.progressWrapper p img {
+  float: left;
+  margin: -4px 20px 0 4px;
 }
 
 /* -- SWFUpload Object Styles ------------------------------- */

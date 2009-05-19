@@ -69,16 +69,16 @@ Uploader.prototype = {
     }
   },
   uploadStart : function (file) {
-    this.uploads[file.id].setColor("blue");
-    this.uploads[file.id].setStatus("Uploading...");
+    this.uploads[file.id].setUploading();
   },
   uploadProgress : function (file, bytesLoaded, bytesTotal) {
     var percent = Math.ceil((bytesLoaded / bytesTotal) * 100);
     this.uploads[file.id].setProgress(percent);
-    this.uploads[file.id].setStatus(percent == 100 ? "Processing..." : "Uploading...");
+    if (percent == 100) this.uploads[file.id].setProcessing();
+    else this.uploads[file.id].setUploading();
   },
   uploadSuccess : function (file) {
-    this.uploads[file.id].setStatus("Complete.");
+    this.uploads[file.id].setStatus("Uploaded");
     this.uploads[file.id].toggleCancel(false);
     this.uploads[file.id].setComplete();
   },
@@ -189,7 +189,7 @@ Upload.prototype = {
   canceller: null,
   uploader: null,
   queue: null,
-  timer: null,
+  waiter: null,
 
   initialize: function(file, uploader) {
   	this.file_id = file.id;
@@ -218,6 +218,9 @@ Upload.prototype = {
     tester = this;
 	},
 	
+  setStatus: function (status) {
+  	this.message.innerHTML = status;
+  },
 	setColor: function (tocolor) {
     ['green', 'blue', 'red', 'white'].each(function (color) {
       if (color == tocolor) this.progress.addClassName(color);
@@ -231,7 +234,27 @@ Upload.prototype = {
 	setProgress: function (percentage) {
   	this.setWidth(percentage);
 	},
+	setWaiting: function () {
+    if (this.waiter) {
+      this.waiter.show();
+    } else {
+      this.waiter = new Element('img', {src: '/images/admin/spinner_on_beige.gif', "class": 'waiter'});
+      this.message.insert(this.waiter);
+      console.log(this.waiter);
+    }
+	},
+	setNotWaiting: function () {
+    if (this.waiter) this.waiter.hide();
+	},
+	setUploading: function () {
+    this.setStatus("Uploading");
+	},
+	setProcessing: function () {
+    this.setStatus("Processing: please wait ");
+    this.setWaiting();
+	},
 	setComplete: function (percentage) {
+    this.setNotWaiting();
   	this.setWidth(100);
   	this.form_holder = new Element('div', {'class' : "fileform"});
   	this.progress.insert(this.form_holder);
@@ -245,9 +268,7 @@ Upload.prototype = {
   	this.setColor('white');
   	this.setWidth(0);
   },
-  setStatus: function (status) {
-  	this.message.innerHTML = status;
-  },
+  
   toggleCancel: function (show, swfUploadInstance) {
   	this.canceller.setStyle('visibility', show ? "visible" : "hidden");
   },

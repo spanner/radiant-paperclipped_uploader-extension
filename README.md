@@ -4,7 +4,7 @@ This adds a friendly batch-uploader to paperclipped, with progress bars and a ve
 
 ## Latest
 
-The completion of each upload triggers an ajax call to drop a simple description form into was was previously the progress bar, so it's now possible to cue up a batch of uploads and describe them when they finish. it needs some cosmetic improvements but it's very quick and easy.
+The completion of each upload triggers an ajax call to drop a simple description form into what was previously the progress bar, so it's now possible to cue up a batch of uploads and describe them when they finish. it needs some cosmetic improvements but it's very quick and easy.
 
 ## Status
 
@@ -22,7 +22,7 @@ The update task brings in quite a lot of clutter: javascript, flash, a bit of cs
 ## Warnings
 
 * At the moment you need our [fork of paperclipped](https://github.com/spanner/paperclipped) for this to work: flash uploads don't come with content-types so we've had to intervene.
-* Flash uploads also don't come with cookies or other useful context, so there is a hack in the submission code to send that information in the POST instead, and another hack in CGI::Session to get it out again.
+* Flash uploads don't come with cookies or other useful context either, so there is a semi-standard hack in the submission code to send that information by POST instead, and another couple in CGI::Session to get it out again.
 *  I've stuck with paperclipped's prototype/lowpro setup for the javascript, so it's easy to integrate but not very nice.
 * There's only a couple of mornings' work in this so handle with care!
 

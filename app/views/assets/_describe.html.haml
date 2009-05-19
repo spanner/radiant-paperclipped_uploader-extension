@@ -1,22 +1,20 @@
 %div{:id => "holder_#{@asset.id}"}
   - remote_form_for @asset, :url => describe_asset_path(@asset), :update => "holder_#{@asset.id}", :html => {:id => "file_form_#{@asset.id}"} do |f|
     = f.hidden_field :id
-    %table
+    %table{:style => 'width: 100%'}
       %tbody
         %tr
-          %td{:style => 'width: 20%'}
+          %td{:style => 'width: 42px'}
+            = image_tag @asset.thumbnail(:icon)
+          %td
             %label{ :for => "asset_title" } Title
-          %td{:style => 'width: 30%'}
-            %label{ :for => "asset_caption" } Caption
-          %td{:style => 'width: 20%'}
-            %label{ :for => "asset_copyright" } Copyright
-          %td{:style => 'width: 10%'}
-        %tr
-          %td{:style => 'width: 20%'}
             = f.text_field :title, :class => 'textbox'
-          %td{:style => 'width: 30%'}
+          %td{:style => 'width: 50%'}
+            %label{ :for => "asset_caption" } Caption
             = f.text_field :caption, :class => 'textbox'
-          %td{:style => 'width: 20%'}
-            = f.text_field :copyright, :class => 'textbox'
-          %td{:style => 'width: 10%'}
-            = f.submit "save"
+          - if Asset.column_names.include?('copyright')
+            %td
+              %label{ :for => "asset_copyright" } Copyright
+              = f.text_field :copyright, :class => 'textbox'
+          %td{:style => 'vertical-align: bottom; padding: 4px;'}
+            = f.submit "save", :onclick => "this.hide(); this.parentNode.insert(new Element('img', {src: '/images/admin/big_spinner_on_beige.gif', 'class': 'waiter'}));"
