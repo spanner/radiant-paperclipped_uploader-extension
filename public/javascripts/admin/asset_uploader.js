@@ -39,7 +39,7 @@ Uploader.prototype = {
       upload_start_handler : this.uploadStart.bind(this),
       queue_complete_handler : this.queueComplete.bind(this),
       upload_progress_handler : this.uploadProgress.bind(this),
-      upload_complete_handler : this.uploadComplete.bind(this),
+      // upload_complete_handler : this.uploadComplete.bind(this),
       upload_success_handler : this.uploadSuccess.bind(this),
       upload_error_handler: this.uploadError.bind(this),
       
@@ -59,7 +59,7 @@ Uploader.prototype = {
   },
   fileDialogComplete : function (selected, queued, total) {
     this.swfu.startUpload();
-    this.choosebutton.update('upload more files');
+    this.choosebutton.update('choose more files...');
   },
   fileQueued : function (file) {
     try {
@@ -69,6 +69,7 @@ Uploader.prototype = {
     }
   },
   uploadStart : function (file) {
+    this.uploads[file.id].setColor("blue");
     this.uploads[file.id].setStatus("Uploading...");
   },
   uploadProgress : function (file, bytesLoaded, bytesTotal) {
@@ -172,6 +173,7 @@ Uploader.prototype = {
 // using great big divs to show progress
 // then replacing contents with response html
 // and calling remote_form on the resulting description form
+var tester = null;
 
 var Upload = Class.create();
 Upload.prototype = {
@@ -185,83 +187,63 @@ Upload.prototype = {
   file_label: null,
   message: null,
   canceller: null,
+  uploader: null,
   queue: null,
+  timer: null,
 
   initialize: function(file, uploader) {
   	this.file_id = file.id;
   	this.file_name = file.name;
-  	this.holder = $(this.file_id);
-  	this.queue = $(queue_name);
+  	this.uploader = uploader;
+  	this.queue = $(uploader.queue_name);
+	  this.wrapper = new Element('div', {'class' : "progressWrapper", 'id' : this.file_id});
+	  this.progress = new Element('div', {'class' : "progressContainer"});
+	  this.bar = new Element('div', {'class' : "progressBar"}).insert(" ");
+	  this.canceller = new Element('a', {'href' : '#', 'class' : "progressCancel", 'style' : 'visibility: hidden;'}).insert("x");
+	  this.file_label = new Element('div', {'class' : "progressName"}).insert(file.name);
+    this.message = new Element('div', {'class' : "progressBarStatus"});
+    this.message.innerHTML = "&nbsp;";
 
-  	if (!this.holder) {
-  	  this.holder = new Element('div', {'class' : "progressWrapper", 'id' : this.file_id});
-  	  this.progress = new Element('div', {'class' : "progressContainer"});
-  	  this.bar = new Element('div', {'class' : "progressBarInProgress"}).insert(" ");
-  	  this.canceller = new Element('a', {'href' : '#', 'class' : "progressCancel", 'style' : 'visibility: hidden;'}).insert("x");
-  	  this.file_label = new Element('div', {'class' : "progressName"}).insert(file.name);
-      this.message = new Element('div', {'class' : "progressBarStatus"});
-      this.message.innerHTML = "&nbsp;";
-
-  		this.progress.insert(this.canceller);
-  		this.progress.insert(this.file_label);
-  		this.progress.insert(this.message);
-  		this.progress.insert(this.bar);
-      this.wrapper.insert(this.progress);
-      this.queue.insert(this.wrapper);
-
-  	} else {
-  		this.progress = this.wrapper.firstDescendant();
-  		this.reset();
-  	}
+		this.progress.insert(this.canceller);
+		this.file_label.insert(this.message);
+		this.progress.insert(this.file_label);
+		this.progress.insert(this.bar);
+    this.wrapper.insert(this.progress);
+    this.queue.insert(this.wrapper);
 
 		this.canceller.onclick = this.cancel.bindAsEventListener();
 	  this.height = this.wrapper.offsetHeight;
-	  this.setTimer(null);
-	  this.setStatus("Pending...");
+	  this.setStatus("Queueing...");
     this.toggleCancel(true);
-	},
-	
-	setTimer: function (timer) {
-  	this.progress["FP_TIMER"] = timer;
-	},
-	getTimer: function (timer) {
-  	return this.progress["FP_TIMER"] || null;
-	},
-	reset: function () {
-  	this.message.innerHTML = "&nbsp;";
-  	this.message.className = "progressBarStatus";
-  	this.bar.className = "progressBarInProgress";
-  	this.bar.setStyle('width', "0%");
-  	this.appear();	
+    tester = this;
 	},
 	
 	setColor: function (tocolor) {
-    ['green', 'blue', 'red'].each(function (color) {
+    ['green', 'blue', 'red', 'white'].each(function (color) {
       if (color == tocolor) this.progress.addClassName(color);
       else this.progress.removeClassName(color);
-    });
+    }.bind(this));
+	},
+	setWidth: function (width) {
+    if (width) this.bar.setStyle({width: width + "%"});
+    else this.bar.setStyle({width: ""});
 	},
 	setProgress: function (percentage) {
-  	this.setColor("green");
-  	this.bar.className = "progressBarInProgress";
-  	this.bar.setStyle('width', percentage + "%");
-  	this.appear();	
+  	this.setWidth(percentage);
 	},
 	setComplete: function (percentage) {
-  	this.setColor("blue");
-  	this.bar.className = "progressBarComplete";
-  	this.bar.setStyle('width', "");
-  	new Ajax.Updater(this.wrapper, '/assets/describe', { method: 'get', parameters: {filename: this.file_name} });
+  	this.setWidth(100);
+  	this.form_holder = new Element('div', {'class' : "fileform"});
+  	this.progress.insert(this.form_holder);
+    new Ajax.Updater(this.form_holder, '/admin/assets/describe', { method: 'get', parameters: {filename: this.file_name} });
   },
 	setError: function (percentage) {
   	this.setColor("red");
-  	this.bar.className = "progressBarError";
-  	this.bar.setStyle('width', "");
+  	this.setWidth(0);
   },
  	setCancelled: function (percentage) {
-  	this.setColor('neutral');
-  	this.bar.className = "progressBarError";
-  	this.bar.setStyle('width', "");
+  	this.setColor('white');
+  	this.setWidth(0);
   },
   setStatus: function (status) {
   	this.message.innerHTML = status;
@@ -269,25 +251,9 @@ Upload.prototype = {
   toggleCancel: function (show, swfUploadInstance) {
   	this.canceller.setStyle('visibility', show ? "visible" : "hidden");
   },
-  
-  appear: function () {
-  	if (this.getTimer() !== null) {
-  		clearTimeout(this.getTimer());
-  		this.setTimer(null);
-  	}
-	  this.wrapper.setOpacity(1);
-	  this.wrapper.setStyle('height', '');
-    this.height = this.wrapper.offsetHeight;
-	  this.opacity = 100;
-	  this.wrapper.setStyle('display', '');
-  },
-  disappear: function () {
-    this.wrapper.fade({ duration: 3.0 });
-  },
   cancel: function (e, but_stay) {
     this.uploader.swfu.cancelUpload(this.file_id);
     this.setCancelled();
-    if (!but_stay) this.disappear.delay(2);
   }
   
 };
