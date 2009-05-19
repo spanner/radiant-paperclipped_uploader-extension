@@ -1,18 +1,18 @@
 # Paperclipped Uploader
 
-This adds a friendly batch-uploader to paperclipped, with progress bars and a very simple interface. 
+This adds a friendly batch-uploader to paperclipped, with progress bars and a very simple interface. We use SWFupload to do most of the work. 
 
-# How
+## Latest
 
-We use SWFupload to do most of the work.x`z`
+The completion of each upload triggers an ajax call to drop a simple description form into was was previously the progress bar, so it's now possible to cue up a batch of uploads and describe them when they finish. it needs some cosmetic improvements but it's very quick and easy.
 
-# Status
+## Status
 
-It works. It's very new and rather sloppy.
+It works. It's very new but reasonably tidy.
 
 There's some functionality I want to add - when an upload completes I want to be able to enter metadata for that file - and there's a lot of cargo code in here that I'm gradually trimming. The next version will work a bit better and look a lot better.
 
-# Installation
+## Installation
 
 The usual:
 
@@ -21,12 +21,12 @@ The usual:
 
 The update task brings in quite a lot of clutter: javascript, flash, a bit of css, a link image.
 
-# Warnings
+## Warnings
 
 * At the moment you need our [fork of paperclipped](https://github.com/spanner/paperclipped) for this to work: flash uploads don't come with content-types so we've had to intervene.
 * Flash uploads also don't come with cookies or other useful context, so there is a hack in the submission code to send that information in the POST instead, and another hack in CGI::Session to get it out again.
-* There's only a morning's work in this so handle with care!
-
+*  I've stuck with paperclipped's prototype/lowpro setup for the javascript, so it's easy to integrate but not very nice.
+* There's only a couple of mornings' work in this so handle with care!
 
 ## Author & Copyright
 
