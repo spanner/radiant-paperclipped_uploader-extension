@@ -4,7 +4,7 @@ This adds a friendly batch-uploader to paperclipped, with progress bars and a ve
 
 # How
 
-We use SWFupload to do most of the work.
+We use SWFupload to do most of the work.x`z`
 
 # Status
 
@@ -17,7 +17,7 @@ There's some functionality I want to add - when an upload completes I want to be
 The usual:
 
 	git submodule add git://github.com/spanner/radiant-paperclipped_uploader-extension.git vendor/extensions/forum
-	rake radiant:extensions:paperclipped:update
+	rake radiant:extensions:paperclipped_uploader:update
 
 The update task brings in quite a lot of clutter: javascript, flash, a bit of css, a link image.
 
@@ -25,7 +25,7 @@ The update task brings in quite a lot of clutter: javascript, flash, a bit of cs
 
 * At the moment you need our [fork of paperclipped](https://github.com/spanner/paperclipped) for this to work: flash uploads don't come with content-types so we've had to intervene.
 * Flash uploads also don't come with cookies or other useful context, so there is a hack in the submission code to send that information in the POST instead, and another hack in CGI::Session to get it out again.
-* There's only a morning's work in this so handle with care.
+* There's only a morning's work in this so handle with care!
 
 
 ## Author & Copyright

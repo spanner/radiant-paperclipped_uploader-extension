@@ -51,15 +51,16 @@
 /* cargo css ! */
 
 .progressWrapper {
-	width: 357px;
+	width: 100%;
 	overflow: hidden;
 }
 
 .progressContainer {
+  position: relative;
 	margin: 5px;
 	padding: 4px;
-	border: solid 1px #E8E8E8;
-	background-color: #F7F7F7;
+	border: solid 1px #EAE3C5;
+	background-color: white;
 	overflow: hidden;
 }
 /* Message */

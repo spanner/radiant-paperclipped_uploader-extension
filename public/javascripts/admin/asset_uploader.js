@@ -12,6 +12,7 @@ Uploader.prototype = {
   uploader: null,
   queue_name: null,
   swfu: null,
+  uploads: {},
   initialize: function(upload_form) {
     this.ulform = upload_form;
     this.choosebutton = $('file_chooser');
@@ -49,13 +50,7 @@ Uploader.prototype = {
     };
     
     this.swfu = new SWFUpload(this.settings);
-
-    // console.log("Uploader: overloading form.onSubmit");
-    // this.urlform.onSubmit = this.uploadFiles.bindAsEventListener(this);
-    
     Event.observe(this.choosebutton,'click', function(e) { e.stop(); this.swfu.selectFiles(); }.bind(this));
-    // Event.observe(this.startbutton,'click', function(e) { e.stop(); this.swfu.startUpload(); }.bind(this));
-
     
   },
   swfUploadLoaded : function () { 
@@ -68,31 +63,23 @@ Uploader.prototype = {
   },
   fileQueued : function (file) {
     try {
-      var progress = new FileProgress(file, this.queue_name);
-      progress.setStatus("Pending...");
-      progress.toggleCancel(true, this);
+      this.uploads[file.id] = new Upload(file, this);
     } catch (ex) {
       this.swfu.debug(ex);
     }
   },
   uploadStart : function (file) {
-    var progress = new FileProgress(file, this.queue_name);
-    progress.setStatus("Uploading...");
-    progress.toggleCancel(true, this);  },
+    this.uploads[file.id].setStatus("Uploading...");
+  },
   uploadProgress : function (file, bytesLoaded, bytesTotal) {
     var percent = Math.ceil((bytesLoaded / bytesTotal) * 100);
-    var progress = new FileProgress(file, this.queue_name);
-    progress.setProgress(percent);
-    progress.setStatus(percent == 100 ? "Processing..." : "Uploading...");
+    this.uploads[file.id].setProgress(percent);
+    this.uploads[file.id].setStatus(percent == 100 ? "Processing..." : "Uploading...");
   },
   uploadSuccess : function (file) {
-    var progress = new FileProgress(file, this.queue_name);
-    progress.setComplete();
-    progress.setStatus("Complete.");
-    progress.toggleCancel(false);
-  },
-  uploadComplete : function (file, response) {
-    // remote call for _describe partial
+    this.uploads[file.id].setStatus("Complete.");
+    this.uploads[file.id].toggleCancel(false);
+    this.uploads[file.id].setComplete();
   },
   queueError : function (file, errorCode, message) {
     if (errorCode === SWFUpload.QUEUE_ERROR.QUEUE_LIMIT_EXCEEDED) {
@@ -100,7 +87,7 @@ Uploader.prototype = {
     	return;
     }
 
-    var progress = new FileProgress(file, this.queuename);
+    var progress = this.uploads[file.id];
     progress.setError();
     progress.toggleCancel(false);
 
@@ -126,7 +113,7 @@ Uploader.prototype = {
   	}
   },
   uploadError : function (file, errorCode, message) {
-		var progress = new FileProgress(file, this.queuename);
+    var progress = this.uploads[file.id];
 		progress.setError();
 		progress.toggleCancel(false);
 
@@ -156,18 +143,13 @@ Uploader.prototype = {
 			this.debug("Error Code: File Validation Failed, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 			break;
 		case SWFUpload.UPLOAD_ERROR.FILE_CANCELLED:
-			// If there aren't any files left (they were all cancelled) disable the cancel button
-			if (this.getStats().files_queued === 0) {
-				document.getElementById(this.customSettings.cancelButtonId).disabled = true;
-			}
-			progress.setStatus("Cancelled");
-			progress.setCancelled();
+			progress.cancel();
 			break;
 		case SWFUpload.UPLOAD_ERROR.UPLOAD_STOPPED:
 			progress.setStatus("Stopped");
 			break;
 		default:
-			progress.setStatus("Unhandled Error: " + errorCode);
+			progress.setStatus("Unknown Error: " + errorCode);
 			this.debug("Error Code: " + errorCode + ", File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 			break;
 		}
@@ -184,10 +166,6 @@ Uploader.prototype = {
 };
 
 
-
-
-
-
 // this needs to be completely rewritten
 // as a dependent object of the uploader
 // retrievable by id
@@ -195,196 +173,121 @@ Uploader.prototype = {
 // then replacing contents with response html
 // and calling remote_form on the resulting description form
 
-function FileProgress(file, targetID) {
-	this.fileProgressID = file.id;
+var Upload = Class.create();
+Upload.prototype = {
+  file_id: null,
+  file_name: '',
+  opacity: 100,
+  height: 0,
+  wrapper: null,
+  progress: null,
+  bar: null,
+  file_label: null,
+  message: null,
+  canceller: null,
+  queue: null,
 
-	this.opacity = 100;
-	this.height = 0;
+  initialize: function(file, uploader) {
+  	this.file_id = file.id;
+  	this.file_name = file.name;
+  	this.holder = $(this.file_id);
+  	this.queue = $(queue_name);
+
+  	if (!this.holder) {
+  	  this.holder = new Element('div', {'class' : "progressWrapper", 'id' : this.file_id});
+  	  this.progress = new Element('div', {'class' : "progressContainer"});
+  	  this.bar = new Element('div', {'class' : "progressBarInProgress"}).insert(" ");
+  	  this.canceller = new Element('a', {'href' : '#', 'class' : "progressCancel", 'style' : 'visibility: hidden;'}).insert("x");
+  	  this.file_label = new Element('div', {'class' : "progressName"}).insert(file.name);
+      this.message = new Element('div', {'class' : "progressBarStatus"});
+      this.message.innerHTML = "&nbsp;";
+
+  		this.progress.insert(this.canceller);
+  		this.progress.insert(this.file_label);
+  		this.progress.insert(this.message);
+  		this.progress.insert(this.bar);
+      this.wrapper.insert(this.progress);
+      this.queue.insert(this.wrapper);
+
+  	} else {
+  		this.progress = this.wrapper.firstDescendant();
+  		this.reset();
+  	}
+
+		this.canceller.onclick = this.cancel.bindAsEventListener();
+	  this.height = this.wrapper.offsetHeight;
+	  this.setTimer(null);
+	  this.setStatus("Pending...");
+    this.toggleCancel(true);
+	},
 	
-
-	this.fileProgressWrapper = document.getElementById(this.fileProgressID);
-	if (!this.fileProgressWrapper) {
-		this.fileProgressWrapper = document.createElement("div");
-		this.fileProgressWrapper.className = "progressWrapper";
-		this.fileProgressWrapper.id = this.fileProgressID;
-
-		this.fileProgressElement = document.createElement("div");
-		this.fileProgressElement.className = "progressContainer";
-
-		var progressCancel = document.createElement("a");
-		progressCancel.className = "progressCancel";
-		progressCancel.href = "#";
-		progressCancel.style.visibility = "hidden";
-		progressCancel.appendChild(document.createTextNode(" "));
-
-		var progressText = document.createElement("div");
-		progressText.className = "progressName";
-		progressText.appendChild(document.createTextNode(file.name));
-
-		var progressBar = document.createElement("div");
-		progressBar.className = "progressBarInProgress";
-
-		var progressStatus = document.createElement("div");
-		progressStatus.className = "progressBarStatus";
-		progressStatus.innerHTML = "&nbsp;";
-
-		this.fileProgressElement.appendChild(progressCancel);
-		this.fileProgressElement.appendChild(progressText);
-		this.fileProgressElement.appendChild(progressStatus);
-		this.fileProgressElement.appendChild(progressBar);
-
-		this.fileProgressWrapper.appendChild(this.fileProgressElement);
-
-		document.getElementById(targetID).appendChild(this.fileProgressWrapper);
-	} else {
-		this.fileProgressElement = this.fileProgressWrapper.firstChild;
-		this.reset();
-	}
-
-	this.height = this.fileProgressWrapper.offsetHeight;
-	this.setTimer(null);
-
-
-}
-
-FileProgress.prototype.setTimer = function (timer) {
-	this.fileProgressElement["FP_TIMER"] = timer;
-};
-FileProgress.prototype.getTimer = function (timer) {
-	return this.fileProgressElement["FP_TIMER"] || null;
-};
-
-FileProgress.prototype.reset = function () {
-	this.fileProgressElement.className = "progressContainer";
-
-	this.fileProgressElement.childNodes[2].innerHTML = "&nbsp;";
-	this.fileProgressElement.childNodes[2].className = "progressBarStatus";
+	setTimer: function (timer) {
+  	this.progress["FP_TIMER"] = timer;
+	},
+	getTimer: function (timer) {
+  	return this.progress["FP_TIMER"] || null;
+	},
+	reset: function () {
+  	this.message.innerHTML = "&nbsp;";
+  	this.message.className = "progressBarStatus";
+  	this.bar.className = "progressBarInProgress";
+  	this.bar.setStyle('width', "0%");
+  	this.appear();	
+	},
 	
-	this.fileProgressElement.childNodes[3].className = "progressBarInProgress";
-	this.fileProgressElement.childNodes[3].style.width = "0%";
-	
-	this.appear();	
-};
-
-FileProgress.prototype.setProgress = function (percentage) {
-	this.fileProgressElement.className = "progressContainer green";
-	this.fileProgressElement.childNodes[3].className = "progressBarInProgress";
-	this.fileProgressElement.childNodes[3].style.width = percentage + "%";
-
-	this.appear();	
-};
-FileProgress.prototype.setComplete = function () {
-	this.fileProgressElement.className = "progressContainer blue";
-	this.fileProgressElement.childNodes[3].className = "progressBarComplete";
-	this.fileProgressElement.childNodes[3].style.width = "";
-
-  // var oSelf = this;
-  // this.setTimer(setTimeout(function () {
-  //  oSelf.disappear();
-  // }, 10000));
-};
-FileProgress.prototype.setError = function () {
-	this.fileProgressElement.className = "progressContainer red";
-	this.fileProgressElement.childNodes[3].className = "progressBarError";
-	this.fileProgressElement.childNodes[3].style.width = "";
-
-  // var oSelf = this;
-  // this.setTimer(setTimeout(function () {
-  //  oSelf.disappear();
-  // }, 5000));
-};
-FileProgress.prototype.setCancelled = function () {
-	this.fileProgressElement.className = "progressContainer";
-	this.fileProgressElement.childNodes[3].className = "progressBarError";
-	this.fileProgressElement.childNodes[3].style.width = "";
-
-	var oSelf = this;
-	this.setTimer(setTimeout(function () {
-		oSelf.disappear();
-	}, 2000));
-};
-FileProgress.prototype.setStatus = function (status) {
-	this.fileProgressElement.childNodes[2].innerHTML = status;
-};
-
-// Show/Hide the cancel button
-FileProgress.prototype.toggleCancel = function (show, swfUploadInstance) {
-	this.fileProgressElement.childNodes[0].style.visibility = show ? "visible" : "hidden";
-	if (swfUploadInstance) {
-		var fileID = this.fileProgressID;
-		this.fileProgressElement.childNodes[0].onclick = function () {
-			swfUploadInstance.cancelUpload(fileID);
-			return false;
-		};
-	}
-};
-
-FileProgress.prototype.appear = function () {
-	if (this.getTimer() !== null) {
-		clearTimeout(this.getTimer());
-		this.setTimer(null);
-	}
-	
-	if (this.fileProgressWrapper.filters) {
-		try {
-			this.fileProgressWrapper.filters.item("DXImageTransform.Microsoft.Alpha").opacity = 100;
-		} catch (e) {
-			// If it is not set initially, the browser will throw an error.  This will set it if it is not set yet.
-			this.fileProgressWrapper.style.filter = "progid:DXImageTransform.Microsoft.Alpha(opacity=100)";
-		}
-	} else {
-		this.fileProgressWrapper.style.opacity = 1;
-	}
-		
-	this.fileProgressWrapper.style.height = "";
-	
-	this.height = this.fileProgressWrapper.offsetHeight;
-	this.opacity = 100;
-	this.fileProgressWrapper.style.display = "";
-	
-};
-
-// Fades out and clips away the FileProgress box.
-FileProgress.prototype.disappear = function () {
-
-	var reduceOpacityBy = 15;
-	var reduceHeightBy = 4;
-	var rate = 30;	// 15 fps
-
-	if (this.opacity > 0) {
-		this.opacity -= reduceOpacityBy;
-		if (this.opacity < 0) {
-			this.opacity = 0;
-		}
-
-		if (this.fileProgressWrapper.filters) {
-			try {
-				this.fileProgressWrapper.filters.item("DXImageTransform.Microsoft.Alpha").opacity = this.opacity;
-			} catch (e) {
-				// If it is not set initially, the browser will throw an error.  This will set it if it is not set yet.
-				this.fileProgressWrapper.style.filter = "progid:DXImageTransform.Microsoft.Alpha(opacity=" + this.opacity + ")";
-			}
-		} else {
-			this.fileProgressWrapper.style.opacity = this.opacity / 100;
-		}
-	}
-
-	if (this.height > 0) {
-		this.height -= reduceHeightBy;
-		if (this.height < 0) {
-			this.height = 0;
-		}
-
-		this.fileProgressWrapper.style.height = this.height + "px";
-	}
-
-	if (this.height > 0 || this.opacity > 0) {
-		var oSelf = this;
-		this.setTimer(setTimeout(function () {
-			oSelf.disappear();
-		}, rate));
-	} else {
-		this.fileProgressWrapper.style.display = "none";
-		this.setTimer(null);
-	}
+	setColor: function (tocolor) {
+    ['green', 'blue', 'red'].each(function (color) {
+      if (color == tocolor) this.progress.addClassName(color);
+      else this.progress.removeClassName(color);
+    });
+	},
+	setProgress: function (percentage) {
+  	this.setColor("green");
+  	this.bar.className = "progressBarInProgress";
+  	this.bar.setStyle('width', percentage + "%");
+  	this.appear();	
+	},
+	setComplete: function (percentage) {
+  	this.setColor("blue");
+  	this.bar.className = "progressBarComplete";
+  	this.bar.setStyle('width', "");
+  	new Ajax.Updater(this.wrapper, '/assets/describe', { method: 'get', parameters: {filename: this.file_name} });
+  },
+	setError: function (percentage) {
+  	this.setColor("red");
+  	this.bar.className = "progressBarError";
+  	this.bar.setStyle('width', "");
+  },
+ 	setCancelled: function (percentage) {
+  	this.setColor('neutral');
+  	this.bar.className = "progressBarError";
+  	this.bar.setStyle('width', "");
+  },
+  setStatus: function (status) {
+  	this.message.innerHTML = status;
+  },
+  toggleCancel: function (show, swfUploadInstance) {
+  	this.canceller.setStyle('visibility', show ? "visible" : "hidden");
+  },
+  
+  appear: function () {
+  	if (this.getTimer() !== null) {
+  		clearTimeout(this.getTimer());
+  		this.setTimer(null);
+  	}
+	  this.wrapper.setOpacity(1);
+	  this.wrapper.setStyle('height', '');
+    this.height = this.wrapper.offsetHeight;
+	  this.opacity = 100;
+	  this.wrapper.setStyle('display', '');
+  },
+  disappear: function () {
+    this.wrapper.fade({ duration: 3.0 });
+  },
+  cancel: function (e, but_stay) {
+    this.uploader.swfu.cancelUpload(this.file_id);
+    this.setCancelled();
+    if (!but_stay) this.disappear.delay(2);
+  }
+  
 };

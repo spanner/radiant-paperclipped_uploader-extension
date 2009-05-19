@@ -1,14 +1,22 @@
-= render_region :form_top
-- render_region :form do |form|
-  - form.edit_title do
-    %p.title
-      %label{ :for => "asset_title" } Title
-      = f.text_field :title, :class => 'textbox', :maxlength => 100 
-  - form.edit_metadata do
-    %p.caption
-      %label{ :for => "asset_caption" } Caption
-      = f.text_area :caption, :class => 'textbox'
-    %p.copyright
-      %label{ :for => "asset_copyright" } Copyright
-      = f.text_field :copyright, :class => 'textbox'
-
+%div{:id => "holder_#{@asset.id}"}
+  - remote_form_for @asset, :url => describe_asset_path(@asset), :update => "holder_#{@asset.id}", :html => {:id => "file_form_#{@asset.id}"} do |f|
+    = f.hidden_field :id
+    %table
+      %tbody
+        %tr
+          %td{:style => 'width: 20%'}
+            %label{ :for => "asset_title" } Title
+          %td{:style => 'width: 30%'}
+            %label{ :for => "asset_caption" } Caption
+          %td{:style => 'width: 20%'}
+            %label{ :for => "asset_copyright" } Copyright
+          %td{:style => 'width: 10%'}
+        %tr
+          %td{:style => 'width: 20%'}
+            = f.text_field :title, :class => 'textbox'
+          %td{:style => 'width: 30%'}
+            = f.text_field :caption, :class => 'textbox'
+          %td{:style => 'width: 20%'}
+            = f.text_field :copyright, :class => 'textbox'
+          %td{:style => 'width: 10%'}
+            = f.submit "save"
