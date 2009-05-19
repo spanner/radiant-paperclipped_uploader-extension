@@ -8,9 +8,7 @@ The completion of each upload triggers an ajax call to drop a simple description
 
 ## Status
 
-It works. It's very new but reasonably tidy.
-
-There's some functionality I want to add - when an upload completes I want to be able to enter metadata for that file - and there's a lot of cargo code in here that I'm gradually trimming. The next version will work a bit better and look a lot better.
+It works. It's very new but reasonably tidy. The next version will work a bit better and look a lot better.
 
 ## Installation
 
