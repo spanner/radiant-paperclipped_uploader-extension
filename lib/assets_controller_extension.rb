@@ -5,6 +5,10 @@ module AssetsControllerExtension
       @asset = Asset.create! :asset => params[:Filedata]
       render :nothing => true
     end
+  rescue => e
+    @error = e
+    logger.warn "file upload error: #{e.inspect}"
+    render :nothing => true, :status => 500                                               # SWFupload only cares about response status
   end
   
   def describe
@@ -22,6 +26,7 @@ module AssetsControllerExtension
     end
   rescue => e
     @error = e
+    logger.warn "file description error: #{e.inspect}"
     render :partial => 'upload_error', :layout => false
   end
   

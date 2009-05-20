@@ -16,5 +16,9 @@
             %td
               %label{ :for => "asset_copyright" } Copyright
               = f.text_field :copyright, :class => 'textbox'
+          - if Asset.reflect_on_association(:attached_tags)
+            %td
+              %label{ :for => "asset_keywords" } Tags
+              = f.text_field :keywords, :class => 'textbox'
           %td{:style => 'vertical-align: bottom; padding: 4px;'}
             = f.submit "save", :onclick => "this.hide(); this.parentNode.insert(new Element('img', {src: '/images/admin/big_spinner_on_beige.gif', 'class': 'waiter'}));"
