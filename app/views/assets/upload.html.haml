@@ -14,15 +14,10 @@
 %p 
   This is a dedicated uploader for asset files. It's more informative than the standard http upload, a bit more reliable with large files and allows you to upload many files at once.
 
-#swf_placeholder
-
 #asset_uploader
   #upload_queue
   #upload_controls
-    %h2.instructions
-      %button#file_chooser{:disabled => true}
-        to begin, choose one or more files
+    .mainform
+      %h2.instructions
 
-%p
-  Each file you select - you can pick as many as you like in the file dialog and add more to the queue by clicking 'choose more files' - will begin to upload automatically. 
-  When the upload is complete, you'll see a compact description form for that file that allows you to override the default title, caption and copyright messages. You can fill in the form and press save without interrupting the other uploads.
+        %button#swf_placeholder.chooser

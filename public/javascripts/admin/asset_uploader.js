@@ -30,7 +30,11 @@ Uploader.prototype = {
       file_queue_limit : 0,
       debug: false,
       
+      button_width: "500",
+      button_height: "29",
       button_placeholder_id: 'swf_placeholder',
+      button_text: '<span class="biggish">add files to upload queue...</span>',
+      button_text_style: ".biggish { font-size: 22px; font-weight: lighter; font-family: HelveticaNeue-Bold, Helvetica, Arial, sans-serif; letter-spacing: -0.05em; color: #cc0000; cursor: hand;}",
       
       // The event handler functions
       swfupload_loaded_handler : this.swfUploadLoaded.bind(this),
@@ -39,7 +43,6 @@ Uploader.prototype = {
       upload_start_handler : this.uploadStart.bind(this),
       queue_complete_handler : this.queueComplete.bind(this),
       upload_progress_handler : this.uploadProgress.bind(this),
-      // upload_complete_handler : this.uploadComplete.bind(this),
       upload_success_handler : this.uploadSuccess.bind(this),
       upload_error_handler: this.uploadError.bind(this),
       
@@ -50,32 +53,30 @@ Uploader.prototype = {
     };
     
     this.swfu = new SWFUpload(this.settings);
-    Event.observe(this.choosebutton,'click', function(e) { e.stop(); this.swfu.selectFiles(); }.bind(this));
+    // Event.observe(this.choosebutton,'click', function(e) { e.stop(); this.swfu.selectFiles(); }.bind(this));
     
   },
   swfUploadLoaded : function () { 
-    this.choosebutton.writeAttribute('disabled', false);
     
   },
   fileDialogComplete : function (selected, queued, total) {
     this.swfu.startUpload();
-    this.choosebutton.update('choose more files...');
   },
   fileQueued : function (file) {
-    try {
-      this.uploads[file.id] = new Upload(file, this);
-    } catch (ex) {
-      this.swfu.debug(ex);
-    }
+    this.uploads[file.id] = new Upload(file, this);
   },
   uploadStart : function (file) {
     this.uploads[file.id].setUploading();
   },
   uploadProgress : function (file, bytesLoaded, bytesTotal) {
     var percent = Math.ceil((bytesLoaded / bytesTotal) * 100);
+    var speed = SWFUpload.speed.formatBPS(file.movingAverageSpeed);
     this.uploads[file.id].setProgress(percent);
-    if (percent == 100) this.uploads[file.id].setProcessing();
-    else this.uploads[file.id].setUploading();
+    if (percent == 100) {
+      this.uploads[file.id].setProcessing();
+    } else {
+      this.uploads[file.id].setStatus("Uploading at " + speed + ": " + file.timeRemaining + " remaining.");
+    }
   },
   uploadSuccess : function (file) {
     this.uploads[file.id].setStatus("Uploaded");
@@ -156,7 +157,7 @@ Uploader.prototype = {
 		}
 	},
   queueComplete : function () {
-
+    
   },
   swfUploadPreLoad : function () { },
   swfUploadLoadFailed : function () { },
