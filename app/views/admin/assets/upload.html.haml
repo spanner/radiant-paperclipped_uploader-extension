@@ -1,0 +1,26 @@
+- include_stylesheet 'admin/assets' 
+- include_stylesheet 'admin/asset_uploader' 
+- include_javascript 'swfupload/swfupload'
+- include_javascript 'swfupload/swfupload.cookies'
+- include_javascript 'swfupload/swfupload.queue'
+- include_javascript 'swfupload/swfupload.speed'
+- include_javascript 'admin/asset_uploader'
+- content_for(:page_scripts) do
+  :plain
+    window._authenticity_token = '#{form_authenticity_token}';
+
+%h1
+  Asset uploader
+%p 
+  This is a dedicated uploader for asset files. It's more informative than the standard http upload, more reliable with large files and allows you to upload many files at once.
+  Click on 'add files to upload queue' to begin, then choose one or more files. You can click again to add more files to the queue while those are uploading.
+  As each upload finishes a small description form will appear. You can submit those forms, but otherwise you must leave this page open until the queue has finished.
+  
+- session_key = ActionController::Base.session_options[:session_key]
+  
+%form#asset_uploader{:action => upload_assets_path(session_key => cookies[session_key], request_forgery_protection_token => form_authenticity_token)}
+  #upload_queue
+  #upload_controls
+    .mainform
+      %h2.instructions
+        %button#swf_placeholder.chooser

@@ -1,10 +1,18 @@
 # Paperclipped Uploader
 
-This adds a friendly batch-uploader to paperclipped, with progress bars and a very simple interface. We use SWFupload to do most of the work. 
+This adds a friendly batch-uploader to paperclipped, with progress bars and a very simple interface. We use SWFupload to do most of the work. The completion of each upload triggers an ajax call to drop a simple description form into what was previously the progress bar, so it's now possible to cue up a batch of uploads and describe them when they finish. It's very quick and easy to use.
 
 ## Latest
 
-The completion of each upload triggers an ajax call to drop a simple description form into what was previously the progress bar, so it's now possible to cue up a batch of uploads and describe them when they finish. It's very quick and easy to use.
+Updated to work with 0.8.0, flash 10 and the latest paperclipped. 
+
+It's a bit clumsy at the moment because I haven't found a good way to add Rack middleware from an extension. You have to put this in your environment.rb:
+
+	require "#{RAILS_ROOT}/vendor/extensions/paperclipped_uploader/lib/session_cookie_from_query_string"
+
+and also this, **before** the `config.middleware.use ::Radiant::Cache` line:
+
+	config.middleware.use SessionCookieFromQueryString
 
 ## Status
 
