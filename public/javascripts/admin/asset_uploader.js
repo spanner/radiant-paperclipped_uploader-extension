@@ -21,7 +21,7 @@ Uploader.prototype = {
         
     this.settings = {
       flash_url : "/flash/swfupload.swf",
-      upload_url: "/admin/assets/upload", // Relative to the SWF file
+      upload_url: this.ulform.action,
       post_params: { "authenticity_token" : window._authenticity_token },
       file_size_limit : "50 MB",
       file_types : "*.*",
@@ -52,35 +52,21 @@ Uploader.prototype = {
       swfupload_load_failed_handler : this.swfUploadLoadFailed.bind(this)
     };
     
-    this.swfu = new SWFUpload(this.settings);
-    // Event.observe(this.choosebutton,'click', function(e) { e.stop(); this.swfu.selectFiles(); }.bind(this));
-    
+    this.swfu = new SWFUpload(this.settings);    
   },
-  swfUploadLoaded : function () { 
-    
-  },
-  fileDialogComplete : function (selected, queued, total) {
-    this.swfu.startUpload();
-  },
-  fileQueued : function (file) {
-    this.uploads[file.id] = new Upload(file, this);
-  },
-  uploadStart : function (file) {
-    this.uploads[file.id].setUploading();
-  },
+  swfUploadLoaded : function () { },
+
+  fileDialogComplete : function (selected, queued, total) { this.swfu.startUpload(); },
+  fileQueued : function (file) { this.uploads[file.id] = new Upload(file, this); },
+  uploadStart : function (file) { this.uploads[file.id].setUploading(); },
+
   uploadProgress : function (file, bytesLoaded, bytesTotal) {
     var percent = Math.ceil((bytesLoaded / bytesTotal) * 100);
-    var speed = SWFUpload.speed.formatBPS(file.movingAverageSpeed);
-    this.uploads[file.id].setProgress(percent);
-    if (percent == 100) {
-      this.uploads[file.id].setProcessing();
-    } else {
-      this.uploads[file.id].setStatus("Uploading at " + speed + ": " + file.timeRemaining + " remaining.");
-    }
+    var speed = SWFUpload.speed.formatBPS(file.averageSpeed);
+    var remaining = SWFUpload.speed.formatTime(file.timeRemaining);
+    this.uploads[file.id].setProgress(percent, speed, remaining);
   },
   uploadSuccess : function (file) {
-    this.uploads[file.id].setStatus("Uploaded");
-    this.uploads[file.id].toggleCancel(false);
     this.uploads[file.id].setComplete();
   },
   queueError : function (file, errorCode, message) {
@@ -91,7 +77,7 @@ Uploader.prototype = {
 
     var progress = this.uploads[file.id];
     progress.setError();
-    progress.toggleCancel(false);
+    progress.hideCanceller();
 
     switch (errorCode) {
     case SWFUpload.QUEUE_ERROR.FILE_EXCEEDS_SIZE_LIMIT:
@@ -117,7 +103,7 @@ Uploader.prototype = {
   uploadError : function (file, errorCode, message) {
     var progress = this.uploads[file.id];
 		progress.setError();
-		progress.toggleCancel(false);
+		progress.hideCanceller();
 
 		switch (errorCode) {
 		case SWFUpload.UPLOAD_ERROR.HTTP_ERROR:
@@ -156,9 +142,7 @@ Uploader.prototype = {
 			break;
 		}
 	},
-  queueComplete : function () {
-    
-  },
+  queueComplete : function () { },
   swfUploadPreLoad : function () { },
   swfUploadLoadFailed : function () { },
   
@@ -201,11 +185,14 @@ Upload.prototype = {
 	  this.progress = new Element('div', {'class' : "progressContainer"});
 	  this.bar = new Element('div', {'class' : "progressBar"}).insert(" ");
 	  this.canceller = new Element('a', {'href' : '#', 'class' : "progressCancel", 'style' : 'visibility: hidden;'}).insert("x");
-	  this.file_label = new Element('div', {'class' : "progressName"}).insert(file.name);
+	  this.file_label = new Element('div', {'class' : "progressName"});
     this.message = new Element('div', {'class' : "progressBarStatus"});
+    this.waiter = new Element('img', {src: '/images/admin/spinner_on_green.gif', "class": 'waiter', "style": 'display: none'});
     this.message.innerHTML = "&nbsp;";
 
 		this.progress.insert(this.canceller);
+		this.file_label.insert(this.waiter);
+		this.file_label.insert(file.name);
 		this.file_label.insert(this.message);
 		this.progress.insert(this.file_label);
 		this.progress.insert(this.bar);
@@ -215,51 +202,43 @@ Upload.prototype = {
 		this.canceller.onclick = this.cancel.bindAsEventListener();
 	  this.height = this.wrapper.offsetHeight;
 	  this.setStatus("Queueing...");
-    this.toggleCancel(true);
+    this.showCanceller();
     tester = this;
 	},
 	
   setStatus: function (status) {
   	this.message.innerHTML = status;
   },
-	setColor: function (tocolor) {
-    ['green', 'blue', 'red', 'white'].each(function (color) {
-      if (color == tocolor) this.progress.addClassName(color);
-      else this.progress.removeClassName(color);
-    }.bind(this));
-	},
 	setWidth: function (width) {
     if (width) this.bar.setStyle({width: width + "%"});
     else this.bar.setStyle({width: ""});
 	},
-	setProgress: function (percentage) {
-  	this.setWidth(percentage);
-	},
-	setWaiting: function () {
-    if (this.waiter) {
-      this.waiter.show();
+	setProgress: function (percent, speed, remaining) {
+    if (percent > 99) {
+    	this.setWidth(100);
+      this.setProcessing();
     } else {
-      this.waiter = new Element('img', {src: '/images/admin/spinner_on_beige.gif', "class": 'waiter'});
-      this.message.insert(this.waiter);
-      console.log(this.waiter);
+    	this.setWidth(percent < 5 ? 5 : percent);
+      this.setStatus("Uploading at " + speed + ": " + remaining + " remaining.");
     }
-	},
-	setNotWaiting: function () {
-    if (this.waiter) this.waiter.hide();
 	},
 	setUploading: function () {
     this.setStatus("Uploading");
+    this.setWorking();
 	},
 	setProcessing: function () {
     this.setStatus("Processing: please wait ");
-    this.setWaiting();
+    this.setWorking();
 	},
 	setComplete: function (percentage) {
-    this.setNotWaiting();
+    this.setStatus("Uploaded");
+    this.hideCanceller();
+    this.waiter.writeAttribute('src', '/images/admin/chk_white.png');
+    this.waiter.removeClassName('waiter');
   	this.setWidth(100);
   	this.form_holder = new Element('div', {'class' : "fileform"});
   	this.progress.insert(this.form_holder);
-    new Ajax.Updater(this.form_holder, '/admin/assets/describe', { method: 'get', parameters: {filename: this.file_name} });
+    new Ajax.Updater(this.form_holder, '/admin/describer', { method: 'get', parameters: {filename: this.file_name} });
   },
 	setError: function (percentage) {
   	this.setColor("red");
@@ -269,9 +248,18 @@ Upload.prototype = {
   	this.setColor('white');
   	this.setWidth(0);
   },
+	setWorking: function () {
+    this.waiter.show();
+	},
+	setNotWorking: function () {
+    this.waiter.hide();
+	},
   
-  toggleCancel: function (show, swfUploadInstance) {
-  	this.canceller.setStyle('visibility', show ? "visible" : "hidden");
+  showCanceller: function () {
+  	this.canceller.setStyle('visibility', "visible");
+  },
+  hideCanceller: function () {
+  	this.canceller.setStyle('visibility', "hidden");
   },
   cancel: function (e, but_stay) {
     this.uploader.swfu.cancelUpload(this.file_id);

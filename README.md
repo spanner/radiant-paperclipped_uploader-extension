@@ -16,7 +16,7 @@ and also this, **before** the `config.middleware.use ::Radiant::Cache` line:
 
 ## Status
 
-It works. It's new but quite tidy. It should handle errors reasonably well but only to report a failure. It's not properly browser-tested yet.
+It works. It's new but quite tidy. It should handle errors reasonably well but only to report a failure.
 
 ## Installation
 
