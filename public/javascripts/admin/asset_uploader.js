@@ -241,11 +241,9 @@ Upload.prototype = {
     new Ajax.Updater(this.form_holder, '/admin/describer', { method: 'get', parameters: {filename: this.file_name} });
   },
 	setError: function (percentage) {
-  	this.setColor("red");
   	this.setWidth(0);
   },
  	setCancelled: function (percentage) {
-  	this.setColor('white');
   	this.setWidth(0);
   },
 	setWorking: function () {
