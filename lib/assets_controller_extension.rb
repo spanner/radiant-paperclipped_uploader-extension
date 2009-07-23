@@ -2,10 +2,9 @@ module AssetsControllerExtension
 
   def upload  
     if request.post?
-      @asset = Asset.new(:title => params[:Filename])
+      @asset = Asset.new(:title => params[:Filename], :upload_token => params[:FileToken])
       @asset.uploaded_file = params[:Filedata]
       @asset.save!
-      session["upload_#{params[:Filename]}".intern] = @asset.id
       render :nothing => true
     end
   rescue => e
@@ -15,9 +14,8 @@ module AssetsControllerExtension
   end
   
   def describe
-    if params[:filename]                                                                  # return from the upload is to the swf file, not to javascript, so we generally don't have asset id but we do have the filename, so we do the best we can with that.
-      file_name = params[:filename].strip.gsub(/[^\w\d\.\-]+/, '_')                       # copied from paperclip to match filename processing on upload
-      @asset = Asset.find_by_asset_file_name(file_name, :order => 'created_at desc')      
+    if params[:upload]
+      @asset = Asset.find_by_upload_token(params[:upload] , :order => 'created_at desc')      
     else
       @asset = Asset.find(params[:id])
     end
@@ -34,6 +32,3 @@ module AssetsControllerExtension
   end
   
 end
-
-#! we want to call an uploaded_asset= method and set mime-type
-# rather than post-processing in paperclip, which is nasty

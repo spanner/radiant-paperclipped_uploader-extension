@@ -20,8 +20,11 @@
   
 #upload_queue
 
-%form#asset_uploader{:action => upload_assets_path(session_key => cookies[session_key], request_forgery_protection_token => form_authenticity_token)}
-  #upload_controls
-    .mainform
+- @asset = Asset.new
+- form_for @asset, :url => upload_assets_path(session_key => cookies[session_key], request_forgery_protection_token => form_authenticity_token), :html => {:id => 'asset_uploader'} do |f|
+  
+  .mainform
+
+    #upload_controls
       %h2.instructions
         %button#swf_placeholder.chooser
