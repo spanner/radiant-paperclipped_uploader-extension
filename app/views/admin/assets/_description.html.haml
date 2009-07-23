@@ -1,8 +1,14 @@
 %p.file_caption
   = image_tag @asset.thumbnail(:icon)
-  = @asset.caption
-  - if Asset.column_names.include?('copyright')
-    %br
+  = link_to @asset.title, edit_admin_asset_url(@asset), :target => 'blank'
+  - if @asset.respond_to?(:keywords)
+    %span.keywords
+      = @asset.keywords
+  %br
+  %span.caption
+    caption: 
+    = @asset.caption
+  - if @asset.respond_to?(:copyright)
     %span.copyright
       copyright:
       = @asset.copyright

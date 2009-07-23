@@ -1,7 +1,7 @@
 %div{:id => "describe_#{@asset.id}"}
   - remote_form_for @asset, :url => describe_asset_path(@asset), :update => "describe_#{@asset.id}", :html => {:id => "file_form_#{@asset.id}"} do |f|
     = f.hidden_field :id
-    %table{:style => 'width: 100%'}
+    %table
       %tbody
         %tr
           %td.thumbnail
@@ -9,7 +9,7 @@
           %td
             %label{ :for => "asset_title" } Title
             = f.text_field :title, :class => 'textbox'
-          %td{:style => 'width: 50%'}
+          %td
             %label{ :for => "asset_caption" } Caption
             = f.text_field :caption, :class => 'textbox'
           - if @asset.respond_to?(:copyright)

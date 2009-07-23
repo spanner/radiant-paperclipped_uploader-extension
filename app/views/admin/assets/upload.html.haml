@@ -11,20 +11,42 @@
 
 %h1
   Asset uploader
-%p 
-  This is a dedicated uploader for asset files. It's more informative than the standard http upload, more reliable with large files and allows you to upload many files at once.
-  Click on 'add files to upload queue' to begin, then choose one or more files. You can click again to add more files to the queue while those are uploading.
-  As each upload finishes a small description form will appear. You can submit those forms, but otherwise you must leave this page open until the queue has finished.
   
-- session_key = ActionController::Base.session_options[:session_key]
-  
-#upload_queue
+%p
+  1. Set common values for all your uploads. Skip any that don't apply or are different for each file. You can tweak these for each file once it has uploaded.
 
+- session_key = ActionController::Base.session_options[:session_key]
 - @asset = Asset.new
 - form_for @asset, :url => upload_assets_path(session_key => cookies[session_key], request_forgery_protection_token => form_authenticity_token), :html => {:id => 'asset_uploader'} do |f|
   
-  .mainform
+  .form-area
+    - if @asset.respond_to? :keywords
+      %p.keywords
+        = f.label :keywords
+        %br  
+        = f.text_field :keywords, :class => 'textbox'
+        %span.formnote
+          optional. Comma-separated list, please. Spaces are fine.
+    %p.caption
+      = f.label :caption, "Caption"
+      %br
+      = f.text_field :caption, :class => 'textbox'
+    - if @asset.respond_to? :copyright
+      %p.copyright
+        = f.label :copyright, "Copyright notice"
+        %br
+        = f.text_field :copyright, :class => 'textbox'
 
-    #upload_controls
-      %h2.instructions
-        %button#swf_placeholder.chooser
+    %p.clear
+
+  %p
+    2. Choose files to upload. The link below will bring up a file-chooser. Select as many files as you like: they will queue up and upload one at a time. Click on 'choose files' again to add more files to the back of the queue:
+
+  #upload_controls
+    %h2.instructions
+      %button#swf_placeholder.chooser
+
+  %p
+    3. Edit the title and description of each file. At this stage the asset is safely uploaded but not yet very well described. You will probably want to give it a better name and tweak the common settings you entered above.
+
+#upload_queue

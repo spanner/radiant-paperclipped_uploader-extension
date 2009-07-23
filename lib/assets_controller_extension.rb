@@ -2,7 +2,8 @@ module AssetsControllerExtension
 
   def upload  
     if request.post?
-      @asset = Asset.new(:title => params[:Filename], :upload_token => params[:FileToken])
+      @asset = Asset.new(params[:asset])
+      @asset.title ||= params[:Filename]
       @asset.uploaded_file = params[:Filedata]
       @asset.save!
       render :nothing => true

@@ -2,13 +2,24 @@
   clear: both;
 }
 
+#content .form-area .keywords, #content .form-area .caption, #content .form-area .copyright {
+  width: 30%;
+  float: left;
+  margin: 16px 20px 10px 0;
+}
 
+#content .form-area .keywords .textbox, #content .form-area .caption .textbox, #content .form-area .copyright .textbox {
+  font-family:Georgia,Palatino,"Times New Roman",Times,serif;
+  font-size: 120%;
+	width: 100%;
+	margin: 0;
+	padding: 4px;
+}
 
-
-
-
-
-/* cargo css ! */
+span.formnote {
+  font-size: 0.8em;
+  color: #c5c2b9;
+}
 
 .progressWrapper {
 	width: 100%;
@@ -63,7 +74,7 @@
   top: 0;
   left: 0;
   height: 100%;
-	width: 0;
+	width: 4%;
 	background-color: #393;
 	z-index: 990;
 }
@@ -94,10 +105,11 @@ a.progressCancel:hover {
 .progressWrapper .fileform {
   z-index: 1010;
 	position: absolute;
-	left: 160px;
+  top: 0;
+	left: 24px;
   height: 46px;
   overflow: hidden;
-  min-width: 400px;
+  width: 95%;
 	background-color: #393;   /* to cover absolutely-positioned content beneath */
 }
 
@@ -106,7 +118,7 @@ a.progressCancel:hover {
   text-align: center;
 }
 
-.progressWrapper form label {
+.progressWrapper .fileform label {
   display: block;
 	margin: 2px 0 0 0;
 	font-family: "Lucida Grande","Bitstream Vera Sans",Helvetica,Verdana,Arial,sans-serif;
@@ -115,7 +127,7 @@ a.progressCancel:hover {
 	font-weight: bold;
 }
 
-.progressWrapper form input.textbox {
+.progressWrapper .fileform input.textbox {
 	font-family: "Lucida Grande","Bitstream Vera Sans",Helvetica,Verdana,Arial,sans-serif;
 	width: 100%;
 	padding: 3px;
@@ -134,7 +146,12 @@ a.progressCancel:hover {
   width: 100%;
 }
 
-.progressWrapper p span.copyright{
+.progressWrapper a {
+  color: white;
+  font-weight: bold;
+}
+
+.progressWrapper p span.caption, .progressWrapper p span.copyright, .progressWrapper p span.keywords {
 	color: #76ba76;
   font-size: 80%;
 }

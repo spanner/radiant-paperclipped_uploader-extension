@@ -6,12 +6,17 @@ The completion of each upload triggers a remote call to drop a simple descriptio
 
 ## Latest
 
-Updated to work with radiant 0.8.0, flash 10 and the latest paperclipped. 
-It should just work, but until this and paperclipped get proper tests it's hard to be sure. Bug reports very welcome.
+* Updated to work with radiant 0.8.0, flash 10 and the latest paperclipped. 
+* Default values can be set for the batch of uploads, then tweaked for each file
+* works with `paperclipped_taggable` if installed
+* if you have a 'copyright' column in your Assets, works with that too
+* a token is passed with each upload so that we can retrieve it for description
+
+That last change means you need to run the extension migrations.
 
 ## Status
 
-It works. It's new but quite tidy. It should handle errors reasonably well but only to report a failure.
+It works. It's fairly tidy but has no tests. It should handle errors reasonably well but only to report a failure. It's not very nice to look at but I was going for simplicity. There's no point prettifying it until the new radiant interface comes in.
 
 ## Installation
 
@@ -19,6 +24,7 @@ The usual:
 
 	git submodule add git://github.com/spanner/radiant-paperclipped_uploader-extension.git vendor/extensions/paperclipped_uploader
 	rake radiant:extensions:paperclipped_uploader:update
+	rake radiant:extensions:paperclipped_uploader:migrate
 
 The update task brings in quite a lot of clutter: javascript, flash, a bit of css, a link image and some more spinners. You do need it all.
 

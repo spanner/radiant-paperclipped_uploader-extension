@@ -6,19 +6,39 @@ document.observe("dom:loaded", function() {
   }
 });
 
+// we send a unique token with the upload because we can't return the id to this script: swfupload gets the response and only reads the status code.
+
+var makeUuid = function () {
+  // http://www.ietf.org/rfc/rfc4122.txt
+  var s = [];
+  var hexDigits = "0123456789ABCDEF";
+  for (var i = 0; i < 32; i++) { s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1); }
+  s[12] = "4";                                       // bits 12-15 of the time_hi_and_version field to 0010
+  s[16] = hexDigits.substr((s[16] & 0x3) | 0x8, 1);  // bits 6-7 of the clock_seq_hi_and_reserved to 01
+  return s.join('');
+};
+
+var timestamp = function () {
+  return new Date().getTime();
+};
+
+// this is a much-chopped about descendant of the standard demo code for swfupload.
+
 var Uploader = Class.create();
 Uploader.prototype = {
   settings: null,
   uploader: null,
   queue_name: null,
   swfu: null,
+  ticker: null,
   uploads: {},
   initialize: function(upload_form) {
     this.ulform = upload_form;
     this.choosebutton = $('file_chooser');
     this.upload_list = $('file_list');
     this.queue_name = 'upload_queue';
-        
+    this.ticker = timestamp();
+    
     this.settings = {
       flash_url : "/flash/swfupload.swf",
       upload_url: this.ulform.action,
@@ -31,11 +51,12 @@ Uploader.prototype = {
       debug: false,
       
       button_width: "500",
-      button_height: "29",
+      button_height: "44",
       button_placeholder_id: 'swf_placeholder',
       button_text: '<span class="biggish">add files to upload queue...</span>',
-      button_text_style: ".biggish { font-size: 22px; font-weight: lighter; font-family: HelveticaNeue-Bold, Helvetica, Arial, sans-serif; letter-spacing: -0.05em; color: #cc0000; cursor: hand;}",
-      
+      button_text_style: ".biggish { font-size: 36px; line-height: 1.1; font-weight: lighter; font-family: Helvetica, Arial, sans-serif; letter-spacing: -0.05em; color: #cc0000;}",
+      button_cursor: SWFUpload.CURSOR.HAND,
+
       // The event handler functions
       swfupload_loaded_handler : this.swfUploadLoaded.bind(this),
       file_dialog_complete_handler : this.fileDialogComplete.bind(this),
@@ -54,116 +75,56 @@ Uploader.prototype = {
     
     this.swfu = new SWFUpload(this.settings);    
   },
-  swfUploadLoaded : function () { },
-
-  fileDialogComplete : function (selected, queued, total) { this.swfu.startUpload(); },
-  fileQueued : function (file) { this.uploads[file.id] = new Upload(file, this); },
-  uploadStart : function (file) { this.uploads[file.id].setUploading(); },
-
+  swfUploadLoaded : function () { 
+  },
+  fileDialogComplete : function (selected, queued, total) { 
+    this.swfu.startUpload(); 
+  },
+  fileQueued : function (file) { 
+    this.uploads[file.id] = new Upload(file, this); 
+  },
+  uploadStart : function (file) { 
+    this.uploads[file.id].setUploading(); 
+    this.swfu.addFileParam(file.id, 'asset[upload_token]', this.uploads[file.id].token);
+    this.ulform.getElements().each(function (input) {
+      this.swfu.addFileParam(file.id, input.readAttribute('name'), input.getValue());
+    }.bind(this));
+  },
   uploadProgress : function (file, bytesLoaded, bytesTotal) {
-    var percent = Math.ceil((bytesLoaded / bytesTotal) * 100);
-    var speed = SWFUpload.speed.formatBPS(file.averageSpeed);
-    var remaining = SWFUpload.speed.formatTime(file.timeRemaining);
-    this.uploads[file.id].setProgress(percent, speed, remaining);
+    var tick = timestamp();
+    if (tick != this.ticker) {
+      var percent = Math.ceil((bytesLoaded / bytesTotal) * 100);
+      var speed = SWFUpload.speed.formatBPS(file.averageSpeed);
+      var remaining = SWFUpload.speed.formatTime(file.timeRemaining);
+      this.uploads[file.id].setProgress(percent, speed, remaining);
+      this.ticker = tick;
+    } else {
+      console.log('no tick', tick, this.ticker);
+    }
   },
   uploadSuccess : function (file) {
     this.uploads[file.id].setComplete();
   },
-  queueError : function (file, errorCode, message) {
-    if (errorCode === SWFUpload.QUEUE_ERROR.QUEUE_LIMIT_EXCEEDED) {
-    	alert("You have attempted to queue too many files.\n" + (message === 0 ? "You have reached the upload limit." : "You may select " + (message > 1 ? "up to " + message + " files." : "one file.")));
-    	return;
-    }
-
-    var progress = this.uploads[file.id];
-    progress.setError();
-    progress.hideCanceller();
-
-    switch (errorCode) {
-    case SWFUpload.QUEUE_ERROR.FILE_EXCEEDS_SIZE_LIMIT:
-    	progress.setStatus("File is too big.");
-    	this.debug("Error Code: File too big, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
-    	break;
-    case SWFUpload.QUEUE_ERROR.ZERO_BYTE_FILE:
-    	progress.setStatus("Cannot upload Zero Byte files.");
-    	this.debug("Error Code: Zero byte file, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
-    	break;
-    case SWFUpload.QUEUE_ERROR.INVALID_FILETYPE:
-    	progress.setStatus("Invalid File Type.");
-    	this.debug("Error Code: Invalid File Type, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
-    	break;
-    default:
-    	if (file !== null) {
-    		progress.setStatus("Unhandled Error");
-    	}
-    	this.debug("Error Code: " + errorCode + ", File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
-    	break;
-  	}
+  queueError : function (file, error_code, message) {
+    if (error_code === SWFUpload.QUEUE_ERROR.QUEUE_LIMIT_EXCEEDED) alert("You have attempted to queue too many files.\n" + (message === 0 ? "You have reached the upload limit." : "You may select " + (message > 1 ? "up to " + message + " files." : "one file.")));
+    else this.uploadError(file, error_code, message);
   },
-  uploadError : function (file, errorCode, message) {
-    var progress = this.uploads[file.id];
-		progress.setError();
-		progress.hideCanceller();
-
-		switch (errorCode) {
-		case SWFUpload.UPLOAD_ERROR.HTTP_ERROR:
-			progress.setStatus("Upload Error: " + message);
-			this.debug("Error Code: HTTP Error, File name: " + file.name + ", Message: " + message);
-			break;
-		case SWFUpload.UPLOAD_ERROR.UPLOAD_FAILED:
-			progress.setStatus("Upload Failed.");
-			this.debug("Error Code: Upload Failed, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
-			break;
-		case SWFUpload.UPLOAD_ERROR.IO_ERROR:
-			progress.setStatus("Server (IO) Error");
-			this.debug("Error Code: IO Error, File name: " + file.name + ", Message: " + message);
-			break;
-		case SWFUpload.UPLOAD_ERROR.SECURITY_ERROR:
-			progress.setStatus("Security Error");
-			this.debug("Error Code: Security Error, File name: " + file.name + ", Message: " + message);
-			break;
-		case SWFUpload.UPLOAD_ERROR.UPLOAD_LIMIT_EXCEEDED:
-			progress.setStatus("Upload limit exceeded.");
-			this.debug("Error Code: Upload Limit Exceeded, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
-			break;
-		case SWFUpload.UPLOAD_ERROR.FILE_VALIDATION_FAILED:
-			progress.setStatus("Failed Validation.  Upload skipped.");
-			this.debug("Error Code: File Validation Failed, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
-			break;
-		case SWFUpload.UPLOAD_ERROR.FILE_CANCELLED:
-			progress.cancel();
-			break;
-		case SWFUpload.UPLOAD_ERROR.UPLOAD_STOPPED:
-			progress.setStatus("Stopped");
-			break;
-		default:
-			progress.setStatus("Unknown Error: " + errorCode);
-			this.debug("Error Code: " + errorCode + ", File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
-			break;
-		}
+  uploadError : function (file, error_code, message) {
+    this.uploads[file.id].reportError(error_code, message);
 	},
   queueComplete : function () { },
   swfUploadPreLoad : function () { },
   swfUploadLoadFailed : function () { },
-  
   debug: function (argument) {
     this.swfu.debug(argument);
   }
 };
 
-
-// this needs to be completely rewritten
-// as a dependent object of the uploader
-// retrievable by id
-// using great big divs to show progress
-// then replacing contents with response html
-// and calling remote_form on the resulting description form
-var tester = null;
-
 var Upload = Class.create();
 Upload.prototype = {
   file_id: null,
   file_name: '',
+  token: '',
   opacity: 100,
   height: 0,
   wrapper: null,
@@ -180,6 +141,7 @@ Upload.prototype = {
   	this.file_id = file.id;
   	this.file_name = file.name;
   	this.uploader = uploader;
+  	this.token = makeUuid();
   	this.queue = $(uploader.queue_name);
 	  this.wrapper = new Element('div', {'class' : "progressWrapper", 'id' : this.file_id});
 	  this.progress = new Element('div', {'class' : "progressContainer"});
@@ -209,16 +171,20 @@ Upload.prototype = {
   setStatus: function (status) {
   	this.message.innerHTML = status;
   },
-	setWidth: function (width) {
-    if (width) this.bar.setStyle({width: width + "%"});
-    else this.bar.setStyle({width: ""});
-	},
+  setWidth: function (width) {
+    if (width) {
+      if (width < 5) width = 5;
+      this.bar.setStyle({'width': width + "%"});
+    } else {
+      this.bar.setStyle({'width': ""});
+    }
+  },
 	setProgress: function (percent, speed, remaining) {
     if (percent > 99) {
     	this.setWidth(100);
       this.setProcessing();
     } else {
-    	this.setWidth(percent < 5 ? 5 : percent);
+    	this.setWidth(percent);
       this.setStatus("Uploading at " + speed + ": " + remaining + " remaining.");
     }
 	},
@@ -233,17 +199,19 @@ Upload.prototype = {
 	setComplete: function (percentage) {
     this.setStatus("Uploaded");
     this.hideCanceller();
-    this.waiter.writeAttribute('src', '/images/admin/chk_white.png');
+    this.setFinishedWorking();
     this.waiter.removeClassName('waiter');
   	this.setWidth(100);
   	this.form_holder = new Element('div', {'class' : "fileform"});
   	this.progress.insert(this.form_holder);
-    new Ajax.Updater(this.form_holder, '/admin/describer', { method: 'get', parameters: {filename: this.file_name} });
+    new Ajax.Updater(this.form_holder, '/admin/describer', { method: 'get', parameters: {upload: this.token} });
   },
 	setError: function (percentage) {
+  	this.setColor("red");
   	this.setWidth(0);
   },
  	setCancelled: function (percentage) {
+  	this.setColor('white');
   	this.setWidth(0);
   },
 	setWorking: function () {
@@ -252,7 +220,10 @@ Upload.prototype = {
 	setNotWorking: function () {
     this.waiter.hide();
 	},
-  
+  setFinishedWorking: function () {
+    this.waiter.show();
+    this.waiter.writeAttribute('src', '/images/admin/chk_white.png');
+  },
   showCanceller: function () {
   	this.canceller.setStyle('visibility', "visible");
   },
@@ -262,6 +233,47 @@ Upload.prototype = {
   cancel: function (e, but_stay) {
     this.uploader.swfu.cancelUpload(this.file_id);
     this.setCancelled();
+  },
+  reportError: function (error_code, message) {
+    this.setError();
+    this.hideCanceller();
+    switch (error_code) {
+    case SWFUpload.UPLOAD_ERROR.HTTP_ERROR:
+    	this.setStatus("HTTP Error: " + message);
+    	break;
+    case SWFUpload.UPLOAD_ERROR.UPLOAD_FAILED:
+    	this.setStatus("Upload Failed: " + message);
+    	break;
+    case SWFUpload.UPLOAD_ERROR.IO_ERROR:
+    	this.setStatus("Server (IO) Error: " + message);
+    	break;
+    case SWFUpload.UPLOAD_ERROR.SECURITY_ERROR:
+    	this.setStatus("Security Error: " + message);
+    	break;
+    case SWFUpload.UPLOAD_ERROR.UPLOAD_LIMIT_EXCEEDED:
+    	this.setStatus("Upload limit exceeded.");
+    	break;
+    case SWFUpload.UPLOAD_ERROR.FILE_VALIDATION_FAILED:
+    	this.setStatus("Failed Validation.  Upload skipped.");
+    	break;
+    case SWFUpload.UPLOAD_ERROR.FILE_CANCELLED:
+    	this.setCancelled();
+    	break;
+    case SWFUpload.UPLOAD_ERROR.UPLOAD_STOPPED:
+    	this.setStatus("Stopped");
+    	break;
+    case SWFUpload.QUEUE_ERROR.FILE_EXCEEDS_SIZE_LIMIT:
+    	this.setStatus("File is too big.");
+    	break;
+    case SWFUpload.QUEUE_ERROR.ZERO_BYTE_FILE:
+    	this.setStatus("Cannot upload Zero Byte files.");
+    	break;
+    case SWFUpload.QUEUE_ERROR.INVALID_FILETYPE:
+    	this.setStatus("Invalid File Type.");
+    	break;
+    default:
+    	this.setStatus("Error #" + errorCode + ": " + message);
+    	break;
+    }
   }
-  
 };
