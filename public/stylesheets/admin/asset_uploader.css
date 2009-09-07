@@ -16,6 +16,10 @@
   padding: 4px;
 }
 
+#content .form-area .keywords .textbox  {
+  color: #c00;
+}
+
 span.formnote {
   font-size: 0.8em;
   color: #c5c2b9;
@@ -132,6 +136,10 @@ a.progressCancel:hover {
   width: 100%;
   padding: 3px;
   border: 1px solid #060;
+}
+
+.progressWrapper .fileform input.keywords {
+  color: #c00;
 }
 
 .progressWrapper td {

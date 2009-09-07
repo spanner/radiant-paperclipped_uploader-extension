@@ -19,6 +19,6 @@
           - if @asset.respond_to?(:keywords)
             %td
               %label{ :for => "asset_keywords" } Tags
-              = f.text_field :keywords, :class => 'textbox'
+              = f.text_field :keywords, :class => 'textbox keywords'
           %td{:style => 'vertical-align: bottom; padding: 4px;'}
             = f.submit "save", :onclick => "this.hide(); this.parentNode.insert(new Element('img', {src: '/images/admin/spinner_on_green.gif', 'class': 'waiter'}));"

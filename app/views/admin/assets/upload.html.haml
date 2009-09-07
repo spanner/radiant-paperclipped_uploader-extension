@@ -20,13 +20,6 @@
 - form_for @asset, :url => upload_assets_path(session_key => cookies[session_key], request_forgery_protection_token => form_authenticity_token), :html => {:id => 'asset_uploader'} do |f|
   
   .form-area
-    - if @asset.respond_to? :keywords
-      %p.keywords
-        = f.label :keywords
-        %br  
-        = f.text_field :keywords, :class => 'textbox'
-        %span.formnote
-          optional. Comma-separated list, please. Spaces are fine.
     %p.caption
       = f.label :caption, "Caption"
       %br
@@ -36,6 +29,13 @@
         = f.label :copyright, "Copyright notice"
         %br
         = f.text_field :copyright, :class => 'textbox'
+    - if @asset.respond_to? :keywords
+      %p.keywords
+        = f.label :keywords
+        %br  
+        = f.text_field :keywords, :class => 'textbox keywords'
+        %span.formnote
+          optional. Comma-separated list, please. Spaces are fine.
 
     %p.clear
 
