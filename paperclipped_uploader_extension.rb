@@ -8,8 +8,8 @@ class PaperclippedUploaderExtension < Radiant::Extension
   
   define_routes do |map|
     map.with_options(:controller => 'admin/assets') do |asset|
-      asset.upload_assets "/admin/uploader", :action => 'upload'
-      asset.describe_new_asset "/admin/describer", :action => 'describe'
+      asset.upload_assets "/admin/assets/uploader", :action => 'upload'
+      asset.describe_new_asset "/admin/assets/describer", :action => 'describe'
       asset.describe_asset "/admin/assets/:id/describe", :action => 'describe'
     end
   end
@@ -18,6 +18,9 @@ class PaperclippedUploaderExtension < Radiant::Extension
     require 'session_cookie_hack'     # to avoid duplicate alias_chains
     Asset.send :include, UploadableAsset
     Admin::AssetsController.send :include, AssetsControllerExtension
+    admin.tabs['Assets'].add_link('asset list', '/admin/assets')
+    admin.tabs['Assets'].add_link('uploader', '/admin/assets/uploader')
+    
   end
   
   def deactivate
