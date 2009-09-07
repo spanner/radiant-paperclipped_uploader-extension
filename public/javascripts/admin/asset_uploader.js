@@ -46,7 +46,7 @@ Uploader.prototype = {
       file_size_limit : "50 MB",
       file_types : "*.*",
       file_types_description : "All Files",
-      file_upload_limit : 100,
+      file_upload_limit : 1000,
       file_queue_limit : 0,
       debug: false,
       
@@ -207,8 +207,8 @@ Upload.prototype = {
     new Ajax.Updater(this.form_holder, '/admin/describer', { method: 'get', parameters: {upload: this.token} });
   },
 	setError: function (percentage) {
-  	this.setColor("red");
-  	this.setWidth(0);
+    this.setFailedWorking();
+    this.bar.setStyle({'width': 0});
   },
  	setCancelled: function (percentage) {
   	this.setColor('white');
@@ -223,6 +223,10 @@ Upload.prototype = {
   setFinishedWorking: function () {
     this.waiter.show();
     this.waiter.writeAttribute('src', '/images/admin/chk_white.png');
+  },
+  setFailedWorking: function () {
+    this.waiter.show();
+    this.waiter.writeAttribute('src', '/images/admin/chk_off_white.png');
   },
   showCanceller: function () {
   	this.canceller.setStyle('visibility', "visible");

@@ -11,9 +11,9 @@
 #content .form-area .keywords .textbox, #content .form-area .caption .textbox, #content .form-area .copyright .textbox {
   font-family:Georgia,Palatino,"Times New Roman",Times,serif;
   font-size: 120%;
-	width: 100%;
-	margin: 0;
-	padding: 4px;
+  width: 100%;
+  margin: 0;
+  padding: 4px;
 }
 
 span.formnote {
@@ -22,47 +22,47 @@ span.formnote {
 }
 
 .progressWrapper {
-	width: 100%;
-	margin: 2px 0;
-	overflow: hidden;
+  width: 100%;
+  margin: 2px 0;
+  overflow: hidden;
 }
 
 .progressContainer {
   position: relative;
-	padding: 0;
+  padding: 0;
 /*  border: 1px solid #CDC295;*/
-	background-color: #c00;
-	color: white;
-	height: 46px;
-	overflow: hidden;
+  background-color: #c00;
+  color: white;
+  height: 46px;
+  overflow: hidden;
 }
 /* Message */
 .message {
-	margin: 1em 0;
-	padding: 10px 20px;
-	border: solid 1px #FFDD99;
-	background-color: #FFFFCC;
-	overflow: hidden;
+  margin: 1em 0;
+  padding: 10px 20px;
+  border: solid 1px #FFDD99;
+  background-color: #FFFFCC;
+  overflow: hidden;
 }
 
 /* Error */
 .red {
-	background-color: #FFEBEB;
+  background-color: #FFEBEB;
 }
 
 .progressName {
   position: absolute;
   top: 6px;
   left: 6px;
-	font-family: "Lucida Grande","Bitstream Vera Sans",Helvetica,Verdana,Arial,sans-serif;
-	font-weight: bold;
-	font-size: 1.1em;
-	line-height: 0.9;
-	color: white;
-	text-align: left;
-	white-space: nowrap;
-	overflow: hidden;
-	z-index: 1000;
+  font-family: "Lucida Grande","Bitstream Vera Sans",Helvetica,Verdana,Arial,sans-serif;
+  font-weight: bold;
+  font-size: 1.1em;
+  line-height: 0.9;
+  color: white;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  z-index: 1000;
 }
 
 .progressName img {
@@ -74,43 +74,43 @@ span.formnote {
   top: 0;
   left: 0;
   height: 100%;
-	width: 4%;
-	background-color: #393;
-	z-index: 990;
+  width: 4%;
+  background-color: #393;
+  z-index: 990;
 }
 
 .progressBarStatus {
-	font-family: "Lucida Grande","Bitstream Vera Sans",Helvetica,Verdana,Arial,sans-serif;
+  font-family: "Lucida Grande","Bitstream Vera Sans",Helvetica,Verdana,Arial,sans-serif;
 /*  font-size: 0.7em;*/
   opacity: 0.7;
-	font-size: 0.8em;
+  font-size: 0.8em;
   font-weight: lighter;
-	text-align: left;
-	white-space: nowrap;
-	padding-left: 26px;
+  text-align: left;
+  white-space: nowrap;
+  padding-left: 26px;
 }
 
 a.progressCancel {
-	font-size: 0;
-	display: block;
-	height: 14px;
-	width: 14px;
-	float: right;
+  font-size: 0;
+  display: block;
+  height: 14px;
+  width: 14px;
+  float: right;
 }
 
 a.progressCancel:hover {
-	background-position: 0px 0px;
+  background-position: 0px 0px;
 }
 
 .progressWrapper .fileform {
   z-index: 1010;
-	position: absolute;
+  position: absolute;
   top: 0;
-	left: 24px;
+  left: 24px;
   height: 46px;
   overflow: hidden;
   width: 95%;
-	background-color: #393;   /* to cover absolutely-positioned content beneath */
+  background-color: #393;   /* to cover absolutely-positioned content beneath */
 }
 
 .progressWrapper .fileform td.thumbnail {
@@ -120,18 +120,18 @@ a.progressCancel:hover {
 
 .progressWrapper .fileform label {
   display: block;
-	margin: 2px 0 0 0;
-	font-family: "Lucida Grande","Bitstream Vera Sans",Helvetica,Verdana,Arial,sans-serif;
-	color: white;
-	font-size: 75%;
-	font-weight: bold;
+  margin: 2px 0 0 0;
+  font-family: "Lucida Grande","Bitstream Vera Sans",Helvetica,Verdana,Arial,sans-serif;
+  color: white;
+  font-size: 75%;
+  font-weight: bold;
 }
 
 .progressWrapper .fileform input.textbox {
-	font-family: "Lucida Grande","Bitstream Vera Sans",Helvetica,Verdana,Arial,sans-serif;
-	width: 100%;
-	padding: 3px;
-	border: 1px solid #060;
+  font-family: "Lucida Grande","Bitstream Vera Sans",Helvetica,Verdana,Arial,sans-serif;
+  width: 100%;
+  padding: 3px;
+  border: 1px solid #060;
 }
 
 .progressWrapper td {
@@ -141,8 +141,8 @@ a.progressCancel:hover {
 
 .progressWrapper p {
   margin: 0;
-	padding: 6px;
-	font-family: "Lucida Grande","Bitstream Vera Sans",Helvetica,Verdana,Arial,sans-serif;
+  padding: 6px;
+  font-family: "Lucida Grande","Bitstream Vera Sans",Helvetica,Verdana,Arial,sans-serif;
   width: 100%;
 }
 
@@ -152,7 +152,7 @@ a.progressCancel:hover {
 }
 
 .progressWrapper p span.caption, .progressWrapper p span.copyright, .progressWrapper p span.keywords {
-	color: #76ba76;
+  color: #76ba76;
   font-size: 80%;
 }
 
@@ -163,7 +163,7 @@ a.progressCancel:hover {
 
 /* -- SWFUpload Object Styles ------------------------------- */
 .swfupload {
-	vertical-align: top;
+  vertical-align: top;
 }
 
 
