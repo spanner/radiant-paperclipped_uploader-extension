@@ -8,10 +8,10 @@ module AssetsControllerExtension
       @asset.save!
       render :nothing => true
     end
-  # rescue => e
-  #   @error = e
-  #   logger.warn "!!  file upload error: #{e.inspect}"
-  #   render :partial => 'upload_error', :layout => false, :status => 500                    # SWFupload only cares about response status
+  rescue => e
+    @error = e
+    logger.warn "Paperclipped_uploader file upload error: #{e.inspect}"
+    render :partial => 'upload_error', :layout => false, :status => 500                    # SWFupload only cares about response status
   end
   
   def describe
