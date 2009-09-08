@@ -18,8 +18,11 @@ class PaperclippedUploaderExtension < Radiant::Extension
     require 'session_cookie_hack'     # to avoid duplicate alias_chains
     Asset.send :include, UploadableAsset
     Admin::AssetsController.send :include, AssetsControllerExtension
-    admin.tabs['Assets'].add_link('asset list', '/admin/assets')
-    admin.tabs['Assets'].add_link('uploader', '/admin/assets/uploader')
+
+    if admin.tabs['Assets'] && admin.tabs['Assets'].respond_to?(:add_link)
+      admin.tabs['Assets'].add_link('asset list', '/admin/assets')
+      admin.tabs['Assets'].add_link('uploader', '/admin/assets/uploader')
+    end
     
   end
   
