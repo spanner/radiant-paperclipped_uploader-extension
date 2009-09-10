@@ -14,6 +14,11 @@ class PaperclippedUploaderExtension < Radiant::Extension
     end
   end
   
+  extension_config do |config|
+    config.extension 'paperclipped'
+    # session cookie will move into middleware here
+  end
+  
   def activate
     require 'session_cookie_hack'     # to avoid duplicate alias_chains
     Asset.send :include, UploadableAsset
