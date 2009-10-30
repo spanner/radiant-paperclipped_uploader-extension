@@ -8,8 +8,8 @@ class PaperclippedUploaderExtension < Radiant::Extension
   
   define_routes do |map|
     map.with_options(:controller => 'admin/assets') do |asset|
-      asset.upload_assets "/admin/assets/uploader", :action => 'upload'
-      asset.describe_new_asset "/admin/assets/describer", :action => 'describe'
+      asset.upload_assets "/admin/asset_uploader", :action => 'upload'
+      asset.describe_new_asset "/admin/asset_describer", :action => 'describe'
       asset.describe_asset "/admin/assets/:id/describe", :action => 'describe'
     end
   end
