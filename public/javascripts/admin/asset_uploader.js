@@ -204,7 +204,7 @@ Upload.prototype = {
   	this.setWidth(100);
   	this.form_holder = new Element('div', {'class' : "fileform"});
   	this.progress.insert(this.form_holder);
-    new Ajax.Updater(this.form_holder, '/admin/assets/describer', { method: 'get', parameters: {upload: this.token} });
+    new Ajax.Updater(this.form_holder, '/admin/asset_describer', { method: 'get', parameters: {upload: this.token} });
   },
 	setError: function (percentage) {
     this.setFailedWorking();
