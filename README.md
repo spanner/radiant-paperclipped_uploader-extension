@@ -8,7 +8,7 @@ The completion of each upload triggers a remote call to drop a simple descriptio
 
 * Updated to work with radiant 0.8.0, flash 10 and the latest paperclipped. 
 * Default values can be set for the batch of uploads, then tweaked for each file
-* works with `paperclipped_taggable` if installed
+* works with tags from the `library` extension if installed
 * if you have a 'copyright' column in your Assets, works with that too
 * a token is passed with each upload so that we can retrieve it for description
 
