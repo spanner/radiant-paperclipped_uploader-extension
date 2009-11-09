@@ -32,7 +32,9 @@ The update task brings in quite a lot of clutter: javascript, flash, a bit of cs
 
 * Flash uploads don't come with cookies, so I've put a hack in the submission path to pass the session cookie in the query string and another one in the CookieStore middleware to get it out again. I really ought to do this by adding extra middleware but at the moment it's hard to do that cleanly from an extension.
 
-*  I've stuck with paperclipped's prototype/lowpro setup for the javascript, so it's easy to integrate but not really very nice.
+* I've stuck with paperclipped's prototype/lowpro setup for the javascript, so it's easy to integrate but not really very nice.
+
+* Be aware that this can put quite a heavy load on a slow server. Files are only uploaded one at a time but they are then queued for processing by Paperclip and if your uploads are completed more quickly than your imagemagick calls, you can end up with several images being processed at once. Once the server maxes out, later uploads will appear to fail. This would normally only happen in local testing, where the upload is quick and the processing often slow. In real use I've never seen it, even when uploading dozens of tiny layout images.
 
 ## Author & Copyright
 
