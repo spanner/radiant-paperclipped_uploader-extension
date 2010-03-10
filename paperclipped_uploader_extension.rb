@@ -3,7 +3,7 @@
 
 class PaperclippedUploaderExtension < Radiant::Extension
   version "1.1"
-  description "Adds a simple and robust upload queue to paperclipped."
+  description "A plain but highly effective asset uploader. Extends paperclipped."
   url "http://spanner.org/radiant/paperclipped_uploader"
   
   define_routes do |map|
@@ -15,7 +15,7 @@ class PaperclippedUploaderExtension < Radiant::Extension
   end
   
   extension_config do |config|
-    config.gem 'mime-types'
+    # config.gem 'mime-types'
     config.extension 'paperclipped'
     # session cookie will move into middleware here
   end
