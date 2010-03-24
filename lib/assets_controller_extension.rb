@@ -1,6 +1,7 @@
 module AssetsControllerExtension
 
-  def upload  
+  def upload
+    set_standard_body_style
     if request.post?
       @asset = Asset.new(params[:asset])
       @asset.title ||= params[:Filename]

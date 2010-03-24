@@ -34,12 +34,14 @@ span.formnote {
 .progressContainer {
   position: relative;
   padding: 0;
-/*  border: 1px solid #CDC295;*/
-  background-color: #c00;
+  background: #c00 url(/images/assets/redbg.png) repeat-x top left;
   color: white;
-  height: 46px;
+  height: 50px;
   overflow: hidden;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
 }
+
 /* Message */
 .message {
   margin: 1em 0;
@@ -79,13 +81,16 @@ span.formnote {
   left: 0;
   height: 100%;
   width: 4%;
-  background-color: #393;
+  background: #393 url(/images/assets/greenbg.png) repeat-x top left;
   z-index: 990;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  -webkit-box-shadow: 1px 1px 3px #333;
+  -moz-box-shadow: 1px 1px 3px #333;
 }
 
 .progressBarStatus {
   font-family: "Lucida Grande","Bitstream Vera Sans",Helvetica,Verdana,Arial,sans-serif;
-/*  font-size: 0.7em;*/
   opacity: 0.7;
   font-size: 0.8em;
   font-weight: lighter;
@@ -114,7 +119,7 @@ a.progressCancel:hover {
   height: 46px;
   overflow: hidden;
   width: 95%;
-  background-color: #393;   /* to cover absolutely-positioned content beneath */
+  background: #393 url(/images/assets/greenbg.png) repeat-x top left;  /* to cover absolutely-positioned content beneath */
 }
 
 .progressWrapper .fileform td.thumbnail {

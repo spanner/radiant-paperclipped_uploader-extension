@@ -6,7 +6,8 @@ document.observe("dom:loaded", function() {
   }
 });
 
-// we send a unique token with the upload because we can't return the id to this script: swfupload gets the response and only reads the status code.
+// we send a unique token with the upload so that we can continue to refer to this upload
+// we can't return the id from rails: swfupload gets the response and only cares about the status code.
 
 var makeUuid = function () {
   // http://www.ietf.org/rfc/rfc4122.txt
@@ -53,9 +54,12 @@ Uploader.prototype = {
       button_width: "500",
       button_height: "44",
       button_placeholder_id: 'swf_placeholder',
-      button_text: '<span class="biggish">add files to upload queue...</span>',
-      button_text_style: ".biggish { font-size: 36px; line-height: 1.1; font-weight: lighter; font-family: Helvetica, Arial, sans-serif; letter-spacing: -0.05em; color: #cc0000;}",
+      button_text: '<span class="biggish">+ add files to upload queue...</span>',
+      button_text_style: ".biggish { font-size: 36px; line-height: 1.1; font-weight: lighter; font-family: Helvetica, Arial, sans-serif; letter-spacing: -0.05em; color: #ffffff;}",
+    	button_text_left_padding : 5,
+    	button_text_top_padding : 5,
       button_cursor: SWFUpload.CURSOR.HAND,
+    	button_window_mode : SWFUpload.WINDOW_MODE.TRANSPARENT,
 
       // The event handler functions
       swfupload_loaded_handler : this.swfUploadLoaded.bind(this),
@@ -98,8 +102,6 @@ Uploader.prototype = {
       var remaining = SWFUpload.speed.formatTime(file.timeRemaining);
       this.uploads[file.id].setProgress(percent, speed, remaining);
       this.ticker = tick;
-    } else {
-      console.log('no tick', tick, this.ticker);
     }
   },
   uploadSuccess : function (file) {
@@ -204,7 +206,7 @@ Upload.prototype = {
   	this.setWidth(100);
   	this.form_holder = new Element('div', {'class' : "fileform"});
   	this.progress.insert(this.form_holder);
-    new Ajax.Updater(this.form_holder, '/admin/asset_describer', { method: 'get', parameters: {upload: this.token} });
+    new Ajax.Updater(this.form_holder, '/admin/assets/describer', { method: 'get', parameters: {upload: this.token} });
   },
 	setError: function (percentage) {
     this.setFailedWorking();
