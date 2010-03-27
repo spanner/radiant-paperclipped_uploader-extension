@@ -51,11 +51,13 @@ Uploader.prototype = {
       file_queue_limit : 0,
       debug: false,
       
-      button_width: "500",
-      button_height: "44",
+      button_width: "188",
+      button_height: "84",
       button_placeholder_id: 'swf_placeholder',
-      button_text: '<span class="biggish">+ add files to upload queue...</span>',
-      button_text_style: ".biggish { font-size: 36px; line-height: 1.1; font-weight: lighter; font-family: Helvetica, Arial, sans-serif; letter-spacing: -0.05em; color: #ffffff;}",
+      button_image_url : "/images/assets/upload_assets.png",
+    	
+      // button_text: '<span class="biggish">+ add files to upload queue...</span>',
+      // button_text_style: ".biggish { font-size: 36px; line-height: 1.1; font-weight: lighter; font-family: Helvetica, Arial, sans-serif; letter-spacing: -0.05em; color: #33cc33;}",
     	button_text_left_padding : 5,
     	button_text_top_padding : 5,
       button_cursor: SWFUpload.CURSOR.HAND,

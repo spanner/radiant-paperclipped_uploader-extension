@@ -1,7 +1,7 @@
 module AssetsControllerExtension
 
   def upload
-    set_standard_body_style if respond_to? set_standard_body_style
+    set_standard_body_style if defined? set_standard_body_style
     if request.post?
       @asset = Asset.new(params[:asset])
       @asset.title ||= params[:Filename]
@@ -9,7 +9,7 @@ module AssetsControllerExtension
       @asset.save!
       render :nothing => true
     end
-  rescue => e
+  rescue Paperclip::PaperclipError => e
     @error = e
     logger.warn "Paperclipped_uploader file upload error: #{e.inspect}"
     render :partial => 'upload_error', :layout => false, :status => 500                    # SWFupload only looks at response status
