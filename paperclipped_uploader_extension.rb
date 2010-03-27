@@ -2,7 +2,7 @@
 require_dependency 'application_controller'
 
 class PaperclippedUploaderExtension < Radiant::Extension
-  version "1.2"
+  version "1.2.1"
   description "A plain but effective asset uploader based on swfupload. Extends paperclipped."
   url "http://spanner.org/radiant/paperclipped_uploader"
   
