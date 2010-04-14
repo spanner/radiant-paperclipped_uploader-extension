@@ -17,7 +17,7 @@ class File
       temp = File.open(Dir.tmpdir + '/upload_file.' + Process.pid.to_s, "wb")
       temp << file.string
       temp.close
-      mime = `file --mime -br "#{temp.path}"`
+      mime = `file --mime-type -br "#{temp.path}"`
       mime = mime.gsub(/^.*: */,"")
       mime = mime.gsub(/;.*$/,"")
       mime = mime.gsub(/,.*$/,"")
