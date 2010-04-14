@@ -7,7 +7,7 @@ class File
     case file
     when File, Tempfile
       unless RUBY_PLATFORM.include? 'mswin32'
-        mime = `file --mime -br "#{file.path}"`.strip
+        mime = `file --mime-type -br "#{file.path}"`.strip
       else
         mime = EXTENSIONS[File.extname(file.path).gsub('.','').downcase.to_sym]
       end
