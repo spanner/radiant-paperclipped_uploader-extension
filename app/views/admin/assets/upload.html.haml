@@ -12,10 +12,12 @@
 %h1
   Asset uploader
   
-%p
-  1. Set common values for all your uploads. Skip any that don't apply or are different for each file. You can tweak these for each file once it has uploaded.
+%p.formnote
+  %strong
+    1. Set common values for all your uploads. 
+  Skip any field that doesn't apply or is different for each file.
 
-- session_key = ActionController::Base.session_options[:session_key]
+- session_key = ActionController::Base.session_options[:key] || ActionController::Base.session_options[:session_key]
 - @asset = Asset.new
 - form_for @asset, :url => upload_assets_path(session_key => cookies[session_key], request_forgery_protection_token => form_authenticity_token), :html => {:id => 'asset_uploader'} do |f|
   
@@ -39,14 +41,18 @@
 
     %p.clear
 
-  %p
-    2. Choose files to upload. The '+ add files' link below will bring up a file-chooser. Select as many files as you like: they will queue up and upload one at a time. Click on '+ add files' again to add more files to the back of the queue.
+  %p.formnote
+    %strong
+      2. Choose files to upload. 
+    The big 'add files' link below will bring up a file-chooser. Select as many files as you like: they will queue up and upload one at a time. Click on '+ add files' again to add more files to the back of the queue.
 
   #upload_controls
     %h2.instructions
       %button#swf_placeholder.chooser
 
-  %p
-    3. Edit the title and description of each file. At this stage the asset is safely uploaded but not yet very well described. You will probably want to give it a better name and tweak the common settings you entered above.
+  %p.formnote
+    %strong
+      3. Label individual files.
+    Each uploading file will appear below. When it's complete, and processed, a small form will appear so that you can give it a more specific title and description. Those forms can be submitted without interrupting other uploads.
 
 #upload_queue
