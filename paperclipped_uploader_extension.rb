@@ -18,6 +18,7 @@ class PaperclippedUploaderExtension < Radiant::Extension
     ActionController::Dispatcher.middleware.insert_before(ActionController::Base.session_store, SessionCookieFromQueryString)
     Asset.send :include, UploadableAsset
     Admin::AssetsController.send :include, AssetsControllerExtension
+    admin.asset.index.add :bottom, 'buttons'
   end
   
   def deactivate
